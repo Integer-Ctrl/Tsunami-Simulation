@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tsunami_lab &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Building the Project" href="../getting_started/building_project.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tsunami_lab</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE"><code class="docutils literal notranslate"><span class="pre">t_idx</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE"><code class="docutils literal notranslate"><span class="pre">t_real</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io">io</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab2io11tsunami_lab2io3CsvE"><code class="docutils literal notranslate"><span class="pre">Csv</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab2io11tsunami_lab2io3Csv5writeE6t_real5t_idx5t_idx5t_idxPK6t_realPK6t_realPK6t_realRNSt7ostreamE"><code class="docutils literal notranslate"><span class="pre">Csv::write()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#patches">patches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE"><code class="docutils literal notranslate"><span class="pre">WavePropagation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationD0Ev"><code class="docutils literal notranslate"><span class="pre">WavePropagation::~WavePropagation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation8timeStepE6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation::timeStep()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation15setGhostOutflowEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation::setGhostOutflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getStrideEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation::getStride()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getHeightEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation::getHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumXEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation::getMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumYEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation::getMomentumY()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9setHeightE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation::setHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumXE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation::setMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumYE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation::setMomentumY()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dE"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d17WavePropagation1dE5t_idx"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::WavePropagation1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dD0Ev"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::~WavePropagation1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8timeStepE6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::timeStep()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d15setGhostOutflowEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::setGhostOutflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getStrideEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::getStride()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getHeightEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::getHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumXEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::getMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumYEv"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::getMomentumY()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9setHeightE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::setHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumXE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::setMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumYE5t_idx5t_idx6t_real"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::setMomentumY()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d6m_stepE"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::m_step</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8m_nCellsE"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::m_nCells</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d3m_hE"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::m_h</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d4m_huE"><code class="docutils literal notranslate"><span class="pre">WavePropagation1d::m_hu</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setups">setups</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1dE"><code class="docutils literal notranslate"><span class="pre">DamBreak1d</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d10DamBreak1dE6t_real6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::DamBreak1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d9getHeightE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::getHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumXE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::getMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumYE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::getMomentumY()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12m_heightLeftE"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::m_heightLeft</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_heightRightE"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::m_heightRight</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_locationDamE"><code class="docutils literal notranslate"><span class="pre">DamBreak1d::m_locationDam</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupE"><code class="docutils literal notranslate"><span class="pre">Setup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupD0Ev"><code class="docutils literal notranslate"><span class="pre">Setup::~Setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup9getHeightE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">Setup::getHeight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumXE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">Setup::getMomentumX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumYE6t_real6t_real"><code class="docutils literal notranslate"><span class="pre">Setup::getMomentumY()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#solvers">solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3RoeE"><code class="docutils literal notranslate"><span class="pre">Roe</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10netUpdatesE6t_real6t_real6t_real6t_realAL2E_6t_realAL2E_6t_real"><code class="docutils literal notranslate"><span class="pre">Roe::netUpdates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10waveSpeedsE6t_real6t_real6t_real6t_realR6t_realR6t_real"><code class="docutils literal notranslate"><span class="pre">Roe::waveSpeeds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe13waveStrengthsE6t_real6t_real6t_real6t_real6t_real6t_realR6t_realR6t_real"><code class="docutils literal notranslate"><span class="pre">Roe::waveStrengths()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe7m_gSqrtE"><code class="docutils literal notranslate"><span class="pre">Roe::m_gSqrt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">tsunami_lab</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tsunami_lab.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tsunami-lab">
+<span id="api-tsunami-lab"></span><h1>tsunami_lab<a class="headerlink" href="#tsunami-lab" title="Link to this heading"></a></h1>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab5t_idxE">
+<span id="_CPPv3N11tsunami_lab5t_idxE"></span><span id="_CPPv2N11tsunami_lab5t_idxE"></span><span id="tsunami_lab::t_idx"></span><span class="target" id="namespacetsunami__lab_1afd26f38678e954f652489c828656cbca"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">tsunami_lab</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">t_idx</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab5t_idxE" title="Link to this definition"></a><br /></dt>
+<dd><p>integral type for cell-ids, pointer arithmetic, etc. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6t_realE">
+<span id="_CPPv3N11tsunami_lab6t_realE"></span><span id="_CPPv2N11tsunami_lab6t_realE"></span><span id="tsunami_lab::t_real"></span><span class="target" id="namespacetsunami__lab_1a2db0f215df0d48460ce6a8c1e7bfe5a9"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">tsunami_lab</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">t_real</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab6t_realE" title="Link to this definition"></a><br /></dt>
+<dd><p>floating point type </p>
+</dd></dl>
+
+<section id="io">
+<h2>io<a class="headerlink" href="#io" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab2io11tsunami_lab2io3CsvE">
+<span id="_CPPv3N11tsunami_lab2io11tsunami_lab2io3CsvE"></span><span id="_CPPv2N11tsunami_lab2io11tsunami_lab2io3CsvE"></span><span id="tsunami_lab::io::tsunami_lab::io::Csv"></span><span class="target" id="classtsunami__lab_1_1io_1_1Csv"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Csv</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab2io11tsunami_lab2io3CsvE" title="Link to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab2io11tsunami_lab2io3Csv5writeE6t_real5t_idx5t_idx5t_idxPK6t_realPK6t_realPK6t_realRNSt7ostreamE">
+<span id="_CPPv3N11tsunami_lab2io11tsunami_lab2io3Csv5writeE6t_real5t_idx5t_idx5t_idxPK6t_realPK6t_realPK6t_realRNSt7ostreamE"></span><span id="_CPPv2N11tsunami_lab2io11tsunami_lab2io3Csv5writeE6t_real5t_idx5t_idx5t_idxPK6t_realPK6t_realPK6t_realRNSt7ostreamE"></span><span id="tsunami_lab::io::tsunami_lab::io::Csv::write__t_real.t_idx.t_idx.t_idx.t_realCP.t_realCP.t_realCP.osR"></span><span class="target" id="classtsunami__lab_1_1io_1_1Csv_1ac4d89e623fb31db39b1dfbe5fe9edcfe"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">write</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_dxy</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_nx</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ny</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_stride</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">i_h</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">i_hu</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">i_hv</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">io_stream</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab2io11tsunami_lab2io3Csv5writeE6t_real5t_idx5t_idx5t_idxPK6t_realPK6t_realPK6t_realRNSt7ostreamE" title="Link to this definition"></a><br /></dt>
+<dd><p>Writes the data as CSV to the given stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_dxy</strong> – cell width in x- and y-direction. </p></li>
+<li><p><strong>i_nx</strong> – number of cells in x-direction. </p></li>
+<li><p><strong>i_ny</strong> – number of cells in y-direction. </p></li>
+<li><p><strong>i_stride</strong> – stride of the data arrays in y-direction (x is assumed to be stride-1). </p></li>
+<li><p><strong>i_h</strong> – water height of the cells; optional: use nullptr if not required. </p></li>
+<li><p><strong>i_hu</strong> – momentum in x-direction of the cells; optional: use nullptr if not required. </p></li>
+<li><p><strong>i_hv</strong> – momentum in y-direction of the cells; optional: use nullptr if not required. </p></li>
+<li><p><strong>io_stream</strong> – stream to which the CSV-data is written. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="patches">
+<h2>patches<a class="headerlink" href="#patches" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WavePropagation</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE" title="Link to this definition"></a><br /></dt>
+<dd><p>Subclassed by <a class="reference internal" href="#classtsunami__lab_1_1patches_1_1WavePropagation1d"><span class="std std-ref">tsunami_lab::patches::WavePropagation1d</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationD0Ev">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationD0Ev"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationD0Ev"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::~WavePropagation"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a5f0a9d03b1ab9387cf90f172800aaa92"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~WavePropagation</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationD0Ev" title="Link to this definition"></a><br /></dt>
+<dd><p>Virtual destructor for base class. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation8timeStepE6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation8timeStepE6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation8timeStepE6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::timeStep__t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a3d8390f139fc8cede21eb4f534a4e7fc"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">timeStep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_scaling</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation8timeStepE6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Performs a time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i_scaling</strong> – scaling of the time step. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation15setGhostOutflowEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation15setGhostOutflowEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation15setGhostOutflowEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::setGhostOutflow"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a02af1c6f56a9cc310efc8f997957faec"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setGhostOutflow</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation15setGhostOutflowEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the values of the ghost cells according to outflow boundary conditions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getStrideEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getStrideEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getStrideEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::getStride"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1ad87630b516ccda72b4a7bae3044e802a"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getStride</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getStrideEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the stride in y-direction. x-direction is stride-1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>stride in y-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getHeightEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getHeightEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getHeightEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::getHeight"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a1e69699542bfac21fcb2c68088e28a9a"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getHeight</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9getHeightEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets cells’ water heights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>water heights. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumXEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumXEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumXEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::getMomentumX"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a6c3c19b0a402f45011af4ec7ab3ba984"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumX</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumXEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the cells’ momenta in x-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>momenta in x-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumYEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumYEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumYEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::getMomentumY"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a2d720d3de70293d8cc15a573bfb2a601"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumY</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12getMomentumYEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the cells’ momenta in y-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>momenta in y-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9setHeightE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9setHeightE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9setHeightE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::setHeight__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1a46c844b7970b7cb96a62d13bc9f470f6"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setHeight</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ix</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_iy</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_h</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation9setHeightE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the height of the cell to the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_ix</strong> – id of the cell in x-direction. </p></li>
+<li><p><strong>i_iy</strong> – id of the cell in y-direction. </p></li>
+<li><p><strong>i_h</strong> – water height. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumXE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumXE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumXE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::setMomentumX__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1aed5a498ff7ca0dbefae90f21244e2671"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMomentumX</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ix</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_iy</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hu</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumXE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the momentum in x-direction to the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_ix</strong> – id of the cell in x-direction. </p></li>
+<li><p><strong>i_iy</strong> – id of the cell in y-direction. </p></li>
+<li><p><strong>i_hu</strong> – momentum in x-direction. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumYE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumYE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumYE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation::setMomentumY__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation_1aa17fc8f451e46cf248b4cffd1604ef43"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMomentumY</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ix</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_iy</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hv</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagation12setMomentumYE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the momentum in y-direction to the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_ix</strong> – id of the cell in x-direction. </p></li>
+<li><p><strong>i_iy</strong> – id of the cell in y-direction. </p></li>
+<li><p><strong>i_hv</strong> – momentum in y-direction. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WavePropagation1d</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">tsunami_lab</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">patches</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches15WavePropagationE" title="tsunami_lab::patches::tsunami_lab::patches::WavePropagation"><span class="n"><span class="pre">WavePropagation</span></span></a><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dE" title="Link to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d17WavePropagation1dE5t_idx">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d17WavePropagation1dE5t_idx"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d17WavePropagation1dE5t_idx"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::WavePropagation1d__t_idx"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a888e18ad0bdf59dd05c05f2dc0f90efb"></span><span class="sig-name descname"><span class="n"><span class="pre">WavePropagation1d</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_nCells</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d17WavePropagation1dE5t_idx" title="Link to this definition"></a><br /></dt>
+<dd><p>Constructs the 1d wave propagation solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i_nCells</strong> – number of cells. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dD0Ev">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dD0Ev"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dD0Ev"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::~WavePropagation1d"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1af9cb88214b84e3c2cabbb8a1daaf4784"></span><span class="sig-name descname"><span class="n"><span class="pre">~WavePropagation1d</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1dD0Ev" title="Link to this definition"></a><br /></dt>
+<dd><p>Destructor which frees all allocated memory. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8timeStepE6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8timeStepE6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8timeStepE6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::timeStep__t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1ac1884ddb6a52c08a5b65f60e21f6a547"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">timeStep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_scaling</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8timeStepE6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Performs a time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i_scaling</strong> – scaling of the time step (dt / dx). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d15setGhostOutflowEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d15setGhostOutflowEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d15setGhostOutflowEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::setGhostOutflow"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a3f78574d12eb29fa6076e23004de2d22"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setGhostOutflow</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d15setGhostOutflowEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the values of the ghost cells according to outflow boundary conditions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getStrideEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getStrideEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getStrideEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::getStride"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a5ccb6fa952c6dc7f3f4b42a2a7a0cb27"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getStride</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getStrideEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the stride in y-direction. x-direction is stride-1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>stride in y-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getHeightEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getHeightEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getHeightEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::getHeight"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a20380818d4ea8cb8a292c7f4e0a1f41b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getHeight</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9getHeightEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets cells’ water heights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>water heights. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumXEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumXEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumXEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::getMomentumX"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a281c99d0e0491f004d71b958c5aabbb8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumX</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumXEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the cells’ momenta in x-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>momenta in x-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumYEv">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumYEv"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumYEv"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::getMomentumY"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1ae4823d50a22d7102033e165d47a2028c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumY</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12getMomentumYEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Dummy function which returns a nullptr. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9setHeightE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9setHeightE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9setHeightE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::setHeight__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1adf9a1009d96ea10d8944f1b83daf5644"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setHeight</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ix</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_h</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d9setHeightE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the height of the cell to the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_ix</strong> – id of the cell in x-direction. </p></li>
+<li><p><strong>i_h</strong> – water height. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumXE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumXE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumXE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::setMomentumX__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a0344a1bc28432b38bcce02fd0604b3f1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMomentumX</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_ix</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hu</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumXE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the momentum in x-direction to the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_ix</strong> – id of the cell in x-direction. </p></li>
+<li><p><strong>i_hu</strong> – momentum in x-direction. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumYE5t_idx5t_idx6t_real">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumYE5t_idx5t_idx6t_real"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumYE5t_idx5t_idx6t_real"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::setMomentumY__t_idx.t_idx.t_real"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1ab1387901f780a042d2f1b21b1f95f2bb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMomentumY</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d12setMomentumYE5t_idx5t_idx6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Dummy function since there is no y-momentum in the 1d solver. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d6m_stepE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d6m_stepE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d6m_stepE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::m_step__unsigned-short"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1aa362d147d5db8b363f307e4751e1d43c"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">short</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_step</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d6m_stepE" title="Link to this definition"></a><br /></dt>
+<dd><p>current step which indicates the active values in the arrays below </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8m_nCellsE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8m_nCellsE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8m_nCellsE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::m_nCells__t_idx"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a2da2cc4b6f39fc733fee9c05e49fa4c7"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab5t_idxE" title="tsunami_lab::t_idx"><span class="n"><span class="pre">t_idx</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_nCells</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d8m_nCellsE" title="Link to this definition"></a><br /></dt>
+<dd><p>number of cells discretizing the computational domain </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d3m_hE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d3m_hE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d3m_hE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::m_h__t_realPA"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1a83258dbfbd7adea57ef3a9d11d2bf48b"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">m_h</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="k"><span class="pre">nullptr</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d3m_hE" title="Link to this definition"></a><br /></dt>
+<dd><p>water heights for the current and next time step for all cells </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d4m_huE">
+<span id="_CPPv3N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d4m_huE"></span><span id="_CPPv2N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d4m_huE"></span><span id="tsunami_lab::patches::tsunami_lab::patches::WavePropagation1d::m_hu__t_realPA"></span><span class="target" id="classtsunami__lab_1_1patches_1_1WavePropagation1d_1aceeacf330a8549d6fadb1f8b72f0153d"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">m_hu</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="k"><span class="pre">nullptr</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7patches11tsunami_lab7patches17WavePropagation1d4m_huE" title="Link to this definition"></a><br /></dt>
+<dd><p>momenta for the current and next time step for all cells </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="setups">
+<h2>setups<a class="headerlink" href="#setups" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1dE">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1dE"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1dE"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DamBreak1d</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">tsunami_lab</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">setups</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupE" title="tsunami_lab::setups::tsunami_lab::setups::Setup"><span class="n"><span class="pre">Setup</span></span></a><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1dE" title="Link to this definition"></a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;DamBreak1d.h&gt;</em></div>
+<p>1d dam break setup. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d10DamBreak1dE6t_real6t_real6t_real">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d10DamBreak1dE6t_real6t_real6t_real"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d10DamBreak1dE6t_real6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::DamBreak1d__t_real.t_real.t_real"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1a9d09ba838d9a6699b6e2821bc9ed08b7"></span><span class="sig-name descname"><span class="n"><span class="pre">DamBreak1d</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_heightLeft</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_heightRight</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_locationDam</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d10DamBreak1dE6t_real6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_heightLeft</strong> – water height on the left side of the dam. </p></li>
+<li><p><strong>i_heightRight</strong> – water height on the right side of the dam. </p></li>
+<li><p><strong>i_locationDam</strong> – location (x-coordinate) of the dam. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d9getHeightE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d9getHeightE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d9getHeightE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::getHeight__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1aed58c0eaffb7845c79dc91d3304b54ce"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getHeight</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_x</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d9getHeightE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the water height at a given point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i_x</strong> – x-coordinate of the queried point. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>height at the given point. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumXE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumXE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumXE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::getMomentumX__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1aa66e3b6f09be26dd12a5231339235fac"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumX</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumXE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the momentum in x-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>momentum in x-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumYE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumYE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumYE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::getMomentumY__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1a50e49386c11b01d3ff45c79fb413657c"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumY</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12getMomentumYE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the momentum in y-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>momentum in y-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12m_heightLeftE">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12m_heightLeftE"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12m_heightLeftE"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::m_heightLeft__t_real"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1aa7c87a691819d4089ce2a59af49d42f6"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_heightLeft</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d12m_heightLeftE" title="Link to this definition"></a><br /></dt>
+<dd><p>height on the left side </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_heightRightE">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_heightRightE"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_heightRightE"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::m_heightRight__t_real"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1a5949f08bd52d405f0a8c1903d9c913e3"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_heightRight</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_heightRightE" title="Link to this definition"></a><br /></dt>
+<dd><p>height on the right side </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_locationDamE">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_locationDamE"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_locationDamE"></span><span id="tsunami_lab::setups::tsunami_lab::setups::DamBreak1d::m_locationDam__t_real"></span><span class="target" id="classtsunami__lab_1_1setups_1_1DamBreak1d_1abb701a49066f635f80c335313397e827"></span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_locationDam</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups10DamBreak1d13m_locationDamE" title="Link to this definition"></a><br /></dt>
+<dd><p>location of the dam </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupE">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups5SetupE"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups5SetupE"></span><span id="tsunami_lab::setups::tsunami_lab::setups::Setup"></span><span class="target" id="classtsunami__lab_1_1setups_1_1Setup"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Setup</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupE" title="Link to this definition"></a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;Setup.h&gt;</em></div>
+<p>Base setup. </p>
+<p>Subclassed by <a class="reference internal" href="#classtsunami__lab_1_1setups_1_1DamBreak1d"><span class="std std-ref">tsunami_lab::setups::DamBreak1d</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupD0Ev">
+<span id="_CPPv3N11tsunami_lab6setups11tsunami_lab6setups5SetupD0Ev"></span><span id="_CPPv2N11tsunami_lab6setups11tsunami_lab6setups5SetupD0Ev"></span><span id="tsunami_lab::setups::tsunami_lab::setups::Setup::~Setup"></span><span class="target" id="classtsunami__lab_1_1setups_1_1Setup_1a0b6131241d5bd20fc68d3d6a764bcd35"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~Setup</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab6setups11tsunami_lab6setups5SetupD0Ev" title="Link to this definition"></a><br /></dt>
+<dd><p>Virtual destructor for base class. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup9getHeightE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups5Setup9getHeightE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups5Setup9getHeightE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::Setup::getHeight__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1Setup_1aa7e72a3e93aad13342423ec4f06e4f87"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getHeight</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_x</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_y</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup9getHeightE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the water height at a given point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_x</strong> – x-coordinate of the queried point. </p></li>
+<li><p><strong>i_y</strong> – y-coordinate of the queried point. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>water height at the given point. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumXE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumXE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumXE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::Setup::getMomentumX__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1Setup_1a7e9e033b4954247a7fc0a9d808a53296"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumX</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_x</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_y</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumXE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the momentum in x-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_x</strong> – x-coordinate of the queried point. </p></li>
+<li><p><strong>i_y</strong> – y-coordinate of the queried point. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>momentum in x-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumYE6t_real6t_real">
+<span id="_CPPv3NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumYE6t_real6t_real"></span><span id="_CPPv2NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumYE6t_real6t_real"></span><span id="tsunami_lab::setups::tsunami_lab::setups::Setup::getMomentumY__t_real.t_realC"></span><span class="target" id="classtsunami__lab_1_1setups_1_1Setup_1a30f2396047c8658922c617a2be739f09"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMomentumY</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_x</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_y</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK11tsunami_lab6setups11tsunami_lab6setups5Setup12getMomentumYE6t_real6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the momentum in y-direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_x</strong> – x-coordinate of the queried point. </p></li>
+<li><p><strong>i_y</strong> – y-coordinate of the queried point. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>momentum in y-direction. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="solvers">
+<h2>solvers<a class="headerlink" href="#solvers" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3RoeE">
+<span id="_CPPv3N11tsunami_lab7solvers11tsunami_lab7solvers3RoeE"></span><span id="_CPPv2N11tsunami_lab7solvers11tsunami_lab7solvers3RoeE"></span><span id="tsunami_lab::solvers::tsunami_lab::solvers::Roe"></span><span class="target" id="classtsunami__lab_1_1solvers_1_1Roe"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Roe</span></span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3RoeE" title="Link to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10netUpdatesE6t_real6t_real6t_real6t_realAL2E_6t_realAL2E_6t_real">
+<span id="_CPPv3N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10netUpdatesE6t_real6t_real6t_real6t_realAL2E_6t_realAL2E_6t_real"></span><span id="_CPPv2N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10netUpdatesE6t_real6t_real6t_real6t_realA2_6t_realA2_6t_real"></span><span id="tsunami_lab::solvers::tsunami_lab::solvers::Roe::netUpdates__t_real.t_real.t_real.t_real.t_realA.t_realA"></span><span class="target" id="classtsunami__lab_1_1solvers_1_1Roe_1afd6790dc03b4a684728ccdea0661c0eb"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">netUpdates</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_huL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_huR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">o_netUpdateL</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">]</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">o_netUpdateR</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">]</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10netUpdatesE6t_real6t_real6t_real6t_realAL2E_6t_realAL2E_6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Computes the net-updates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_hL</strong> – height of the left side. </p></li>
+<li><p><strong>i_hR</strong> – height of the right side. </p></li>
+<li><p><strong>i_huL</strong> – momentum of the left side. </p></li>
+<li><p><strong>i_huR</strong> – momentum of the right side. </p></li>
+<li><p><strong>o_netUpdateL</strong> – will be set to the net-updates for the left side; 0: height, 1: momentum. </p></li>
+<li><p><strong>o_netUpdateR</strong> – will be set to the net-updates for the right side; 0: height, 1: momentum. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-static-functions">Private Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10waveSpeedsE6t_real6t_real6t_real6t_realR6t_realR6t_real">
+<span id="_CPPv3N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10waveSpeedsE6t_real6t_real6t_real6t_realR6t_realR6t_real"></span><span id="_CPPv2N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10waveSpeedsE6t_real6t_real6t_real6t_realR6t_realR6t_real"></span><span id="tsunami_lab::solvers::tsunami_lab::solvers::Roe::waveSpeeds__t_real.t_real.t_real.t_real.t_realR.t_realR"></span><span class="target" id="classtsunami__lab_1_1solvers_1_1Roe_1a3013a08034eefa89e1531301d569941c"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">waveSpeeds</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_uL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_uR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">o_waveSpeedL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">o_waveSpeedR</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe10waveSpeedsE6t_real6t_real6t_real6t_realR6t_realR6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Computes the wave speeds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_hL</strong> – height of the left side. </p></li>
+<li><p><strong>i_hR</strong> – height of the right side. </p></li>
+<li><p><strong>i_uL</strong> – particle velocity of the leftside. </p></li>
+<li><p><strong>i_uR</strong> – particles velocity of the right side. </p></li>
+<li><p><strong>o_waveSpeedL</strong> – will be set to the speed of the wave propagating to the left. </p></li>
+<li><p><strong>o_waveSpeedR</strong> – will be set to the speed of the wave propagating to the right. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe13waveStrengthsE6t_real6t_real6t_real6t_real6t_real6t_realR6t_realR6t_real">
+<span id="_CPPv3N11tsunami_lab7solvers11tsunami_lab7solvers3Roe13waveStrengthsE6t_real6t_real6t_real6t_real6t_real6t_realR6t_realR6t_real"></span><span id="_CPPv2N11tsunami_lab7solvers11tsunami_lab7solvers3Roe13waveStrengthsE6t_real6t_real6t_real6t_real6t_real6t_realR6t_realR6t_real"></span><span id="tsunami_lab::solvers::tsunami_lab::solvers::Roe::waveStrengths__t_real.t_real.t_real.t_real.t_real.t_real.t_realR.t_realR"></span><span class="target" id="classtsunami__lab_1_1solvers_1_1Roe_1af41a384afadcc97cca79e6cca4713f31"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">waveStrengths</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_hR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_huL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_huR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_waveSpeedL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">i_waveSpeedR</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">o_strengthL</span></span>, <a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">o_strengthR</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe13waveStrengthsE6t_real6t_real6t_real6t_real6t_real6t_realR6t_realR6t_real" title="Link to this definition"></a><br /></dt>
+<dd><p>Computes the wave strengths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i_hL</strong> – height of the left side. </p></li>
+<li><p><strong>i_hR</strong> – height of the right side. </p></li>
+<li><p><strong>i_huL</strong> – momentum of the left side. </p></li>
+<li><p><strong>i_huR</strong> – momentum of the right side. </p></li>
+<li><p><strong>i_waveSpeedL</strong> – speed of the wave propagating to the left. </p></li>
+<li><p><strong>i_waveSpeedR</strong> – speed of the wave propagating to the right. </p></li>
+<li><p><strong>o_strengthL</strong> – will be set to the strength of the wave propagating to the left. </p></li>
+<li><p><strong>o_strengthR</strong> – will be set to the strength of the wave propagating to the right. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-static-attributes">Private Static Attributes</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe7m_gSqrtE">
+<span id="_CPPv3N11tsunami_lab7solvers11tsunami_lab7solvers3Roe7m_gSqrtE"></span><span id="_CPPv2N11tsunami_lab7solvers11tsunami_lab7solvers3Roe7m_gSqrtE"></span><span id="tsunami_lab::solvers::tsunami_lab::solvers::Roe::m_gSqrt__t_real"></span><span class="target" id="classtsunami__lab_1_1solvers_1_1Roe_1ac22feb984a73a98e16b27eedef51b256"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N11tsunami_lab6t_realE" title="tsunami_lab::t_real"><span class="n"><span class="pre">t_real</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_gSqrt</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">3.131557121</span></span><a class="headerlink" href="#_CPPv4N11tsunami_lab7solvers11tsunami_lab7solvers3Roe7m_gSqrtE" title="Link to this definition"></a><br /></dt>
+<dd><p>square root of gravity </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../getting_started/building_project.html" class="btn btn-neutral float-left" title="Building the Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
