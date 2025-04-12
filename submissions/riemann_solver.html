@@ -1,0 +1,669 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Riemann Solver &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Finite Volume Discretization" href="finite_volume_discretization.html" />
+    <link rel="prev" title="Building the Documentation" href="../getting_started/building_docs.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Riemann Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#f-wave-solver">F-wave Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#f-wave-solver-unit-testing">F-wave Solver Unit Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization">Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sphinx-with-doxygen">Sphinx with Doxygen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">1. Riemann Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/riemann_solver.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="riemann-solver">
+<span id="submissions-riemann-solver"></span><h1>1. Riemann Solver<a class="headerlink" href="#riemann-solver" title="Link to this heading"></a></h1>
+<section id="f-wave-solver">
+<h2>F-wave Solver<a class="headerlink" href="#f-wave-solver" title="Link to this heading"></a></h2>
+<p>Header file: <code class="docutils literal notranslate"><span class="pre">.../Tsunami-Simulation/include/solvers/FWave.h</span></code></p>
+<p>Implementation file: <code class="docutils literal notranslate"><span class="pre">.../Tsunami-Simulation/src/solvers/FWave.cpp</span></code></p>
+<p>Test file: <code class="docutils literal notranslate"><span class="pre">.../Tsunami-Simulation/src/solvers/FWave.test.cpp</span></code></p>
+<p>“The f-wave solver approximately solves the following Initial Value Problem (IVP) for the shallow water equations over time”<a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> :</p>
+<p id="submission-1-eq-131"><span class="raw-html"><center>(1.3.1)</center></span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}q(x,0) =
+  \begin{cases}
+    q_{l} \quad   &amp;\text{if } x &lt; 0 \\
+    q_{r} \quad &amp;\text{if }   x &gt; 0
+  \end{cases} \qquad q_l, q_r \in \mathbb{R}^+ \times \mathbb{R}.\end{split}\end{split}\]</div>
+<p>“Theory shows that the solution, arising from the discontinuity at <span class="math notranslate nohighlight">\(x=0\)</span>,
+consist of two waves. Each wave is either a shock or a rarefaction wave.
+The f-wave solver uses two shock waves to approximate the true solution.”<a class="footnote-reference brackets" href="#id8" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>“First, we use the Roe eigenvalues <span class="math notranslate nohighlight">\(\lambda^{\text{Roe}}_{1/2}\)</span> in terms
+of the left and right quantities <span class="math notranslate nohighlight">\(q_l\)</span> and <span class="math notranslate nohighlight">\(q_r\)</span> with respect to
+position <span class="math notranslate nohighlight">\(x=0\)</span> to approximate the true wave speeds:”<a class="footnote-reference brackets" href="#id8" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p id="submission-1-eq-132"><span class="raw-html"><center>(1.3.2)</center></span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{aligned}
+  \lambda^{\text{Roe}}_{1}(q_l, q_r) &amp;= u^{\text{Roe}}(q_l, q_r) - \sqrt{gh^{\text{Roe}}(q_l, q_r)}, \\
+  \lambda^{\text{Roe}}_{2}(q_l, q_r) &amp;= u^{\text{Roe}}(q_l, q_r) + \sqrt{gh^{\text{Roe}}(q_l, q_r)},
+\end{aligned}\end{split}\end{split}\]</div>
+<p>“where the height <span class="math notranslate nohighlight">\(h^{\text{Roe}}\)</span> and particle velocity <span class="math notranslate nohighlight">\(u^{\text{Roe}}\)</span>
+are given as:”<a class="footnote-reference brackets" href="#id8" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{aligned}
+  h^{\text{Roe}}(q_l, q_r) &amp;= \frac{1}{2} (h_l + h_r), \\
+  u^{\text{Roe}}(q_l, q_r) &amp;=  \frac{u_l \sqrt{h_l} + u_r \sqrt{h_r}}{\sqrt{h_l}+\sqrt{h_r}}.
+\end{aligned}\end{split}\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeEigenvalues</span><span class="p">(</span><span class="n">t_real</span><span class="w">   </span><span class="n">i_hL</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">t_real</span><span class="w">   </span><span class="n">i_hR</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">t_real</span><span class="w">   </span><span class="n">i_uL</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">t_real</span><span class="w">   </span><span class="n">i_uR</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_eigenvalue1</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_eigenvalue2</span><span class="p">){</span>
+<span class="w">    </span><span class="c1">// pre-compute square-root ops</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_hSqrtL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_hSqrtR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="w"> </span><span class="n">i_hR</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// compute averages</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_hR</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hSqrtL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l_hSqrtR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uR</span><span class="p">;</span>
+<span class="w">    </span><span class="n">l_u</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">l_hSqrtL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l_hSqrtR</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// compute eigenvalues</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_ghSqrtRoe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_gSqrt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="w"> </span><span class="n">l_h</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">o_eigenvalue1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_u</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">l_ghSqrtRoe</span><span class="p">;</span>
+<span class="w">    </span><span class="n">o_eigenvalue2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_u</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l_ghSqrtRoe</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p id="submission-1-eq-flux">Compute flux function:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}f := [hu, hu^2 + \frac{1}{2}gh^2]^T \\
+\Delta f := f(q_r) - f(q_l)\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeDeltaFlux</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_uL</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_uR</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">t_real</span><span class="w"> </span><span class="n">o_deltaFlux</span><span class="p">[</span><span class="mi">2</span><span class="p">]){</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_huL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_hL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_huR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_hR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uR</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">o_deltaFlux</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_huR</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i_huL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">o_deltaFlux</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i_hR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.5f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_g</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_hR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_hR</span><span class="p">)</span>
+<span class="w">                    </span><span class="o">-</span><span class="p">(</span><span class="n">i_hL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_uL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.5f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_g</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_hL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_hL</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>“The eigencoefficients <span class="math notranslate nohighlight">\(\alpha_p\)</span> in Equation are obtained by
+multiplying the inverse of the matrix of right eigenvectors <span class="math notranslate nohighlight">\(R=[r_1^\text{Roe}, r_2^\text{Roe}]\)</span>
+with the jump in fluxes:”<a class="footnote-reference brackets" href="#id8" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight" id="submission-1-eq-eigencoefficients">
+\[\begin{split}\begin{split}\begin{bmatrix}
+  \alpha_1 \\
+  \alpha_2
+\end{bmatrix} =
+\begin{bmatrix}
+  1 &amp; 1 \\
+  \lambda^{\text{Roe}}_1 &amp; \lambda^{\text{Roe}}_2
+\end{bmatrix}^{-1} \Delta f.\end{split}\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeEigencoefficients</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_eigenvalue1</span><span class="p">,</span>
+<span class="w">                                                           </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_eigenvalue2</span><span class="p">,</span>
+<span class="w">                                                           </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_deltaFlux</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+<span class="w">                                                           </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="n">o_eigencoefficient1</span><span class="p">,</span>
+<span class="w">                                                           </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="n">o_eigencoefficient2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// compute inverse matrix</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">denominator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_eigenvalue2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i_eigenvalue1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">invertedMatrix</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="p">{</span><span class="n">i_eigenvalue2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">denominator</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">denominator</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="o">-</span><span class="n">i_eigenvalue1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">denominator</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">denominator</span><span class="p">}</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// compute eigencoefficients</span>
+<span class="w">    </span><span class="n">o_eigencoefficient1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">invertedMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_deltaFlux</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">invertedMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_deltaFlux</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="n">o_eigencoefficient2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">invertedMatrix</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_deltaFlux</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">invertedMatrix</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_deltaFlux</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p id="submission-1-eq-eigenvectors">“Using the eigenvalues we can define corresponding eigenvectors <span class="math notranslate nohighlight">\(r_{1/2}^{\text{Roe}}\)</span>”<a class="footnote-reference brackets" href="#id8" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{aligned}
+  r_1^{\text{Roe}} &amp;=
+    \begin{bmatrix}
+      1 \\ \lambda^{\text{Roe}}_1
+    \end{bmatrix}, \\
+  r_2^{\text{Roe}} &amp;=
+    \begin{bmatrix}
+      1 \\ \lambda^{\text{Roe}}_2
+    \end{bmatrix}.
+\end{aligned}\end{split}\end{split}\]</div>
+<p>Using the eigenvectors and our eigencoefficients we can compute
+the waves <span class="math notranslate nohighlight">\(Z_{1/2}\)</span></p>
+<p id="submission-1-eq-133"><span class="raw-html"><center>(1.3.3)</center></span></p>
+<div class="math notranslate nohighlight">
+\[\Delta f = \sum_{p=1}^2 \alpha_p r_p \equiv  \sum_{p=1}^2 Z_p, \qquad \alpha_p \in \mathbb{R}.\]</div>
+<p>“This leads to the definition of net updates which summarize the
+net effect of the waves to the left and right “cell”:”<a class="footnote-reference brackets" href="#id8" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight" id="submission-1-eq-effect-on-waves">
+\[\begin{split}\begin{split}\begin{split}
+  A^- \Delta Q := \sum_{p:\{ \lambda_p^\text{Roe} &lt; 0 \}} Z_p \\
+  A^+ \Delta Q := \sum_{p:\{ \lambda_p^\text{Roe} &gt; 0 \}} Z_p
+\end{split}\end{split}\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::netUpdates</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_huL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_huR</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="w"> </span><span class="o">*</span><span class="n">o_netUpdateL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="w"> </span><span class="o">*</span><span class="n">o_netUpdateR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// compute particle velocities</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_uL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_huL</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">i_hL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_uR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_huR</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">i_hR</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// compute eigenvalues</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">computeEigenvalues</span><span class="p">(</span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// create eigenvectors</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigenvector1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">};</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigenvector2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// compute delta flux</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">deltaFlux</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="w">    </span><span class="n">computeDeltaFlux</span><span class="p">(</span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">deltaFlux</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// compute eigencoefficients</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">computeEigencoefficients</span><span class="p">(</span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="p">,</span><span class="w"> </span><span class="n">deltaFlux</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// compute waves / net updates</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">l_qt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_qt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">l_qt</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// init</span>
+<span class="w">        </span><span class="n">o_netUpdateL</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">o_netUpdateR</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 1st wave</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">o_netUpdateL</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">eigenvector1</span><span class="p">[</span><span class="n">l_qt</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">o_netUpdateR</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">eigenvector1</span><span class="p">[</span><span class="n">l_qt</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 2nd wave</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">o_netUpdateL</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">eigenvector2</span><span class="p">[</span><span class="n">l_qt</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">o_netUpdateR</span><span class="p">[</span><span class="n">l_qt</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">eigenvector2</span><span class="p">[</span><span class="n">l_qt</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="f-wave-solver-unit-testing">
+<h2>F-wave Solver Unit Testing<a class="headerlink" href="#f-wave-solver-unit-testing" title="Link to this heading"></a></h2>
+<p><strong>Test the derivation of the F-Wave eigenvalues.</strong> <span class="raw-html"></br></span>
+Using the equation stated in <a class="reference internal" href="#submission-1-eq-132">(1.3.2)</a> to calculate the test cases.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test the derivation of the F-Wave eigenvalues.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[FWaveEigenvalue]&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">     * Test case:</span>
+<span class="cm">     *  h: 10 | 9</span>
+<span class="cm">     *  u: -3 | 3</span>
+<span class="cm">     *</span>
+<span class="cm">     *  height: 9.5</span>
+<span class="cm">     *  velocity: (sqrt(10) * -3 + 3 * 3) / ( sqrt(10) + sqrt(9) )</span>
+<span class="cm">     *               = -0.0790021169691720</span>
+<span class="cm">     * eigenvalue: s1 = -0.079002116969172024 - sqrt(9.80665 * 9.5) = -9.7311093998375095</span>
+<span class="cm">     *             s2 = -0.079002116969172024 + sqrt(9.80665 * 9.5) =  9.5731051658991654</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_eigenvalue1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_eigenvalue2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">computeEigenvalues</span><span class="p">(</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                           </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">                                           </span><span class="mi">-3</span><span class="p">,</span>
+<span class="w">                                           </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">                                           </span><span class="n">l_eigenvalue1</span><span class="p">,</span>
+<span class="w">                                           </span><span class="n">l_eigenvalue2</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_eigenvalue1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w"> </span><span class="mf">-9.7311093998375095</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_eigenvalue2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w">  </span><span class="mf">9.5731051658991654</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Test the computation of the delta flux.</strong> <span class="raw-html"></br></span>
+Using the equation <a class="reference internal" href="#submission-1-eq-flux">flux function</a> to calculate these test cases.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test the computation of the delta flux.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[FWaveDeltaFlux]&quot;</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">     * Test case:</span>
+<span class="cm">     *  h: 10 | 9</span>
+<span class="cm">     *  u: -3 | 3</span>
+<span class="cm">     *</span>
+<span class="cm">     * height: 9.5</span>
+<span class="cm">     * delta f: {9 * 3, 9 * 3 * 3 + 0.5 * m_g * 9 * 9} - {10 * -3, 10 * -3 * -3 + 0.5 * m_g * 10 * 10}</span>
+<span class="cm">     * delta f: {57, -102.163175}</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_deltaFlux</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">computeDeltaFlux</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                                  </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">                                                  </span><span class="mi">-3</span><span class="p">,</span>
+<span class="w">                                                  </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">                                                  </span><span class="n">l_deltaFlux</span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_deltaFlux</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">57</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_deltaFlux</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mf">-102.163175</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Test the computation of the eigencoefficients.</strong> <span class="raw-html"></br></span>
+Using the equation for the <a class="reference internal" href="#submission-1-eq-eigencoefficients">eigencoefficients</a> to calculate the following cases.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test the computation of the eigencoefficients.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[FWaveEigencoefficients]&quot;</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">     * Test case:</span>
+<span class="cm">     *  eigenvalue1: 4</span>
+<span class="cm">     *  eigenvalue2: 5</span>
+<span class="cm">     *  delta flux: {10, 2}</span>
+<span class="cm">     *</span>
+<span class="cm">     *    Matrix of right eigenvectors:</span>
+<span class="cm">     *</span>
+<span class="cm">     *      | 1   1 |</span>
+<span class="cm">     *  R = |       |</span>
+<span class="cm">     *      | 4   5 |</span>
+<span class="cm">     *</span>
+<span class="cm">     * inverted = {{5, -1}, {-4, 1}}</span>
+<span class="cm">     *</span>
+<span class="cm">     * inverted * {10, 2} = {48, -38}</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_eigencoefficient1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_eigencoefficient2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_deltaFlux</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">computeEigencoefficients</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span>
+<span class="w">                                                          </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">                                                          </span><span class="n">l_deltaFlux</span><span class="p">,</span>
+<span class="w">                                                          </span><span class="n">l_eigencoefficient1</span><span class="p">,</span>
+<span class="w">                                                          </span><span class="n">l_eigencoefficient2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_eigencoefficient1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_eigencoefficient2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">-38</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Test the derivation of the F-Wave net-updates.</strong> <span class="raw-html"></br></span>
+Finally the test cases for the net update combine all calculations above and using the <a class="reference internal" href="#submission-1-eq-eigenvectors">eigenvector</a>, the equation <a class="reference internal" href="#submission-1-eq-133">(1.3.3)</a> and the <a class="reference internal" href="#submission-1-eq-effect-on-waves">effect on the left and right waves</a>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test the derivation of the F-Wave net-updates.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[FWaveUpdate]&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">    * Test case:</span>
+<span class="cm">    *</span>
+<span class="cm">    *      left | right</span>
+<span class="cm">    *  h:    10 | 9</span>
+<span class="cm">    *  u:    -3 | 3</span>
+<span class="cm">    *  hu:  -30 | 27</span>
+<span class="cm">    *</span>
+<span class="cm">    * The derivation of the eigenvalues (s1, s2) and eigencoefficient (a1, a1) is given above.</span>
+<span class="cm">    *</span>
+<span class="cm">    * The net-updates are given through the scaled eigenvectors.</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   | 33.5590017014261447899292 |</span>
+<span class="cm">    * update #1: s1 * a1 * |    | = |                           |</span>
+<span class="cm">    *                      | s1 |   | -326.56631690591093200508 |</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   | 23.4409982985738561366777 |</span>
+<span class="cm">    * update #2: s2 * a2 * |    | = |                           |</span>
+<span class="cm">    *                      | s2 |   | 224.403141905910928927533 |</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">-30</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">27</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesR</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w"> </span><span class="mf">33.5590017014261447899292</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w"> </span><span class="mf">-326.56631690591093200508</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w"> </span><span class="mf">23.4409982985738561366777</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="w"> </span><span class="mf">224.403141905910928927533</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">    * Test case (dam break):</span>
+<span class="cm">    *</span>
+<span class="cm">    *     left | right</span>
+<span class="cm">    *   h:  10 | 8</span>
+<span class="cm">    *   hu:  0 | 0</span>
+<span class="cm">    *</span>
+<span class="cm">    * eigenvalues are given as:</span>
+<span class="cm">    *</span>
+<span class="cm">    *   s1 = -sqrt(9.80665 * 9)</span>
+<span class="cm">    *   s2 =  sqrt(9.80665 * 9)</span>
+<span class="cm">    *</span>
+<span class="cm">    * Inversion of the matrix of right Eigenvectors:</span>
+<span class="cm">    *</span>
+<span class="cm">    *   wolframalpha.com query: invert {{1, 1}, {-sqrt(9.80665 * 9), sqrt(9.80665 * 9)}}</span>
+<span class="cm">    *</span>
+<span class="cm">    *          | 0.5 -0.0532217 |</span>
+<span class="cm">    *   Rinv = |                |</span>
+<span class="cm">    *          | 0.5 -0.0532217 |</span>
+<span class="cm">    *</span>
+<span class="cm">    * Multiplicaton with the jump in quantities gives the eigencoefficient:</span>
+<span class="cm">    *</span>
+<span class="cm">    *        | 8 - 10 |   | -1 |   | a1 |</span>
+<span class="cm">    * Rinv * |        | = |    | = |    |</span>
+<span class="cm">    *        |  0 - 0 |   | -1 |   | a2 |</span>
+<span class="cm">    *</span>
+<span class="cm">    * The net-updates are given through the scaled eigenvectors.</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   |   9.394671362 |</span>
+<span class="cm">    * update #1: s1 * a1 * |    | = |               |</span>
+<span class="cm">    *                      | s1 |   | -88.25985     |</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   |  -9.394671362 |</span>
+<span class="cm">    * update #2: s2 * a2 * |    | = |               |</span>
+<span class="cm">    *                      | s2 |   | -88.25985     |</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesR</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w">  </span><span class="n">Approx</span><span class="p">(</span><span class="mf">9.394671362</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="n">Approx</span><span class="p">(</span><span class="mf">88.25985</span><span class="p">)</span><span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="n">Approx</span><span class="p">(</span><span class="mf">9.394671362</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="n">Approx</span><span class="p">(</span><span class="mf">88.25985</span><span class="p">)</span><span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">    * Test case (dam break):</span>
+<span class="cm">    *</span>
+<span class="cm">    *        left | right</span>
+<span class="cm">    *   h:     10 | 1</span>
+<span class="cm">    *   hu:  -100 | 0</span>
+<span class="cm">    *</span>
+<span class="cm">    * eigenvalues are calculated from computeEigenvalues as:</span>
+<span class="cm">    *</span>
+<span class="cm">    *   s1 = -14.9416</span>
+<span class="cm">    *   s2 = -0.253316</span>
+<span class="cm">    *</span>
+<span class="cm">    * eigencoefficient are calculated form computeEigencoefficients as:</span>
+<span class="cm">    *</span>
+<span class="cm">    *   a1 = 99.4054</span>
+<span class="cm">    *   a2 = 0.594551</span>
+<span class="cm">    *</span>
+<span class="cm">    * The net-updates are given through the scaled eigenvectors.</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   |     100     |</span>
+<span class="cm">    * update #1: s1 * a1 * |    | = |             |</span>
+<span class="cm">    *                      | s1 |   | -1485.4292  |</span>
+<span class="cm">    *</span>
+<span class="cm">    *                      |  1 |   |  0  |</span>
+<span class="cm">    * update #2: s2 * a2 * |    | = |     |</span>
+<span class="cm">    *                      | s2 |   |  0  |</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">-100</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesR</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mf">-1485.4292</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">    * Test case (trivial steady state):</span>
+<span class="cm">    *</span>
+<span class="cm">    *     left | right</span>
+<span class="cm">    *   h:  10 | 10</span>
+<span class="cm">    *  hu:   0 |  0</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                                             </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesL</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">l_netUpdatesR</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesL</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_netUpdatesR</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Approx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
+<p>Visualization of the <em>Height</em> and <em>Momentum X</em> with 1000 cells using <a class="reference external" href="https://www.paraview.org">ParaView</a>.</p>
+<p><strong>Height</strong></p>
+<blockquote>
+<div><center>
+    <video width="700" controls>
+        <source src="../_static/videos/01_Visulization_height.mp4" type="video/mp4">
+    </video>
+</center></div></blockquote>
+<p><strong>Momentum X</strong></p>
+<blockquote>
+<div><center>
+    <video width="700" controls>
+        <source src="../_static/videos/01_Visulization_momentum_x.mp4" type="video/mp4">
+    </video>
+</center></div></blockquote>
+</section>
+<section id="sphinx-with-doxygen">
+<h2>Sphinx with Doxygen<a class="headerlink" href="#sphinx-with-doxygen" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>First we install <code class="docutils literal notranslate"><span class="pre">Doxygen</span></code>.</p></li>
+<li><p>We install <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code> and <code class="docutils literal notranslate"><span class="pre">breathe</span></code> and set breath as an extension. An installation guide can be found at <a class="reference internal" href="../getting_started/building_docs.html#building-the-documentation"><span class="std std-ref">Building the Documentation</span></a>.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">...</span>
+    <span class="s1">&#39;breathe&#39;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>We set up the Doxyfile by setting the variables</p>
+<blockquote>
+<div><div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">...</span>
+<span class="n">OUTPUT_DIRECTORY</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;_build&quot;</span>
+<span class="p">...</span>
+<span class="n">INPUT</span><span class="w">                  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;../include/&quot;</span>
+<span class="p">...</span>
+<span class="n">RECURSIVE</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">YES</span>
+<span class="p">...</span>
+<span class="n">GENERATE_XML</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="n">YES</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">GENERATE_XML</span></code> is need, because breathe uses the xml files to generate the respective sphinx files.</p>
+</div></blockquote>
+</li>
+<li><p>We include the following code at the top of the <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> to build the doxygen documentation together with sphinx.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s1">&#39;doxygen Doxyfile.in&#39;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>We set up breathe by adding the following configurations to the <code class="docutils literal notranslate"><span class="pre">conf.py</span></code></p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Breathe configuration -------------------------------------------------</span>
+
+<span class="n">breathe_projects</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Tsunami Simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;_build/xml/&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">breathe_default_project</span> <span class="o">=</span> <span class="s2">&quot;Tsunami Simulation&quot;</span>
+<span class="n">breathe_default_members</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;members&#39;</span><span class="p">,</span> <span class="s1">&#39;undoc-members&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Now we can include a whole namespace e.g. the <em>tsunami_lab::io</em> namespace into sphinx</p>
+<blockquote>
+<div><div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">doxygennamespace</span><span class="p">::</span> tsunami_lab::io
+    <span class="nc">:project:</span> Tsunami Simulation
+    <span class="nc">:content-only:</span>
+    <span class="nc">:members:</span>
+    <span class="nc">:private-members:</span>
+    <span class="nc">:undoc-members:</span>
+</pre></div>
+</div>
+<p>More information about directives to include the doxygen into sphinx can be found at the <a class="reference external" href="https://breathe.readthedocs.io/en/latest/directives.html">official breathe website</a>.</p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>,<a role="doc-backlink" href="#id4">4</a>,<a role="doc-backlink" href="#id5">5</a>,<a role="doc-backlink" href="#id6">6</a>,<a role="doc-backlink" href="#id7">7</a>)</span>
+<p>From <a class="reference external" href="https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_1.html#f-wave-solver">https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_1.html#f-wave-solver</a> (29.10.2023)</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../getting_started/building_docs.html" class="btn btn-neutral float-left" title="Building the Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="finite_volume_discretization.html" class="btn btn-neutral float-right" title="2. Finite Volume Discretization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

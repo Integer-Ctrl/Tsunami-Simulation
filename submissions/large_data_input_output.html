@@ -1,0 +1,1037 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5. Large Data Input and Output &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="6. Tsunami Simulations" href="tsunami_simulation.html" />
+    <link rel="prev" title="4. Two-Dimensional Solver" href="two_dimensional_solver.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Large Data Input and Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#netcdf-output">5.1 NetCDF Output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation-of-netcdf">1. Installation of netCDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tsunami-lab-io-netcdf-write">2. tsunami_lab::io::NetCdf::write</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#netcdf-input">5.2 NetCDF Input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#artificial-tsunami-2d">1. Artificial Tsunami 2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-a-netcdf">2. Reading a netCDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tsunami-event-2d">3. Tsunami Event 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison">4. Comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">5. Large Data Input and Output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/large_data_input_output.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="large-data-input-and-output">
+<span id="submissions-large-data-input-output"></span><h1>5. Large Data Input and Output<a class="headerlink" href="#large-data-input-and-output" title="Link to this heading"></a></h1>
+<section id="netcdf-output">
+<h2>5.1 NetCDF Output<a class="headerlink" href="#netcdf-output" title="Link to this heading"></a></h2>
+<section id="installation-of-netcdf">
+<h3>1. Installation of netCDF<a class="headerlink" href="#installation-of-netcdf" title="Link to this heading"></a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">netCDF</span></code> can be installed OS specific</p>
+<blockquote>
+<div><p><strong>Windows</strong></p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><a class="reference external" href="https://docs.unidata.ucar.edu/netcdf-c/current/winbin.html">Download</a> and install the netCDF-C library and utilities</p></li>
+<li><p>Install as usual and make sure to <code class="docutils literal notranslate"><span class="pre">add</span> <span class="pre">netCDF</span></code> to the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code> for all users</p></li>
+</ol>
+</div></blockquote>
+<p><strong>Linux and MAC</strong></p>
+<blockquote>
+<div><p>The easiest way to install netCDF is via <a class="reference external" href="https://brew.sh/">Homebrew</a>. Run the following command in the terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>netcdf
+</pre></div>
+</div>
+</div></blockquote>
+</div></blockquote>
+</div>
+<p>To use netCDF we have to include the directories and link the library to the whole project in the <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code>.
+With <code class="docutils literal notranslate"><span class="pre">find_package(netCDF</span> <span class="pre">REQUIRED)</span></code> CMake will find the existing path and use it as reference.</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find_package<span class="o">(</span>netCDF<span class="w"> </span>REQUIRED<span class="o">)</span>
+include_directories<span class="o">(</span><span class="si">${</span><span class="nv">netCDF_INCLUDE_DIRS</span><span class="si">}</span><span class="o">)</span>
+link_libraries<span class="o">(</span><span class="si">${</span><span class="nv">netCDF_LIBRARIES</span><span class="si">}</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Now we can use netCDF files in out project.</p>
+</div></blockquote>
+</section>
+<section id="tsunami-lab-io-netcdf-write">
+<h3>2. tsunami_lab::io::NetCdf::write<a class="headerlink" href="#tsunami-lab-io-netcdf-write" title="Link to this heading"></a></h3>
+<p>With the NetCdf constructor we set up our netCDF file. First we define our required dimensions.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">useSpherical</span></code> boolean decides if we are using degrees or meters in our netCDF file as unit. The default value is
+set to <strong>true</strong>. If the user wants to use meters he can set it with the <code class="docutils literal notranslate"><span class="pre">-M</span></code> flag at the beginning. The boolean is then
+used in various ternary operators to set the value to the right one.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Header: NetCdf.h</span>
+<span class="c1">// File:   NetCdf.cpp</span>
+<span class="c1">// Test:   NetCdf.test.cpp</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">NetCdf</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">filePath</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ny</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleX</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleY</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_stride</span><span class="p">,</span>
+<span class="w">                                 </span><span class="kt">bool</span><span class="w"> </span><span class="n">useSpherical</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">isReadMode</span><span class="p">(</span><span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_filePath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filePath</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_nx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_ny</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_scaleX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_scaleX</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_scaleY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_scaleY</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_stride</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l_err</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">m_dimIds</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// set up netCDF-file</span>
+<span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_create</span><span class="p">(</span><span class="w"> </span><span class="n">filePath</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="c1">// path</span>
+</span><span class="hll"><span class="w">                       </span><span class="n">NC_CLOBBER</span><span class="p">,</span><span class="w">       </span><span class="c1">// cmode</span>
+</span><span class="hll"><span class="w">                       </span><span class="o">&amp;</span><span class="n">m_ncId</span><span class="w"> </span><span class="p">);</span><span class="w">        </span><span class="c1">// ncidp</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;create&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="c1">// define dimensions</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_dim</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">         </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                        </span><span class="s">&quot;time&quot;</span><span class="p">,</span><span class="w">         </span><span class="c1">// name</span>
+</span><span class="hll"><span class="w">                        </span><span class="n">NC_UNLIMITED</span><span class="p">,</span><span class="w">   </span><span class="c1">// len</span>
+</span><span class="hll"><span class="w">                        </span><span class="o">&amp;</span><span class="n">m_dimTimeId</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// idp</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dimTime&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_dim</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">                           </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                        </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;longitude&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// name</span>
+</span><span class="hll"><span class="w">                        </span><span class="n">m_nx</span><span class="p">,</span><span class="w">                             </span><span class="c1">// len</span>
+</span><span class="hll"><span class="w">                        </span><span class="o">&amp;</span><span class="n">m_dimXId</span><span class="w"> </span><span class="p">);</span><span class="w">                      </span><span class="c1">// idp</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dimX&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_dim</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">                           </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                        </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;latitude&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// name</span>
+</span><span class="hll"><span class="w">                        </span><span class="n">m_ny</span><span class="p">,</span><span class="w">                             </span><span class="c1">// len</span>
+</span><span class="hll"><span class="w">                        </span><span class="o">&amp;</span><span class="n">m_dimYId</span><span class="w"> </span><span class="p">);</span><span class="w">                      </span><span class="c1">// idp</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dimY&quot;</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">m_dimIds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_dimTimeId</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_dimIds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_dimYId</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_dimIds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_dimXId</span><span class="p">;</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Next, we declare our variables:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">                            </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;longitude&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">                          </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">1</span><span class="p">,</span><span class="w">                                 </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_dimXId</span><span class="p">,</span><span class="w">                         </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_xId</span><span class="w"> </span><span class="p">);</span><span class="w">                          </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;longitude&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">                           </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;latitude&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">                         </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">1</span><span class="p">,</span><span class="w">                                </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_dimYId</span><span class="p">,</span><span class="w">                        </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_yId</span><span class="w"> </span><span class="p">);</span><span class="w">                         </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;latitude&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">             </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="s">&quot;time&quot;</span><span class="p">,</span><span class="w">             </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">           </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">1</span><span class="p">,</span><span class="w">                  </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_dimTimeId</span><span class="p">,</span><span class="w">       </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_timeId</span><span class="w"> </span><span class="p">);</span><span class="w">        </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;timeId&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">             </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="s">&quot;totalHeight&quot;</span><span class="p">,</span><span class="w">      </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">           </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">3</span><span class="p">,</span><span class="w">                  </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="n">m_dimIds</span><span class="p">,</span><span class="w">           </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_totalHeightId</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;totalHeight&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">             </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="s">&quot;bathymetry&quot;</span><span class="p">,</span><span class="w">       </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">           </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">2</span><span class="p">,</span><span class="w">                  </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="n">m_dimIds</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">       </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_bathymetryId</span><span class="w"> </span><span class="p">);</span><span class="w">  </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bathymetry&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">             </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="s">&quot;momentumX&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">           </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">3</span><span class="p">,</span><span class="w">                  </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="n">m_dimIds</span><span class="p">,</span><span class="w">           </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_momentumXId</span><span class="w"> </span><span class="p">);</span><span class="w">   </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;momentumX&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">             </span><span class="c1">// ncid</span>
+<span class="w">                    </span><span class="s">&quot;momentumY&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// name</span>
+<span class="w">                    </span><span class="n">NC_FLOAT</span><span class="p">,</span><span class="w">           </span><span class="c1">// xtype</span>
+<span class="w">                    </span><span class="mi">3</span><span class="p">,</span><span class="w">                  </span><span class="c1">// ndims</span>
+<span class="w">                    </span><span class="n">m_dimIds</span><span class="p">,</span><span class="w">           </span><span class="c1">// dimidsp</span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">m_momentumYId</span><span class="w"> </span><span class="p">);</span><span class="w">   </span><span class="c1">// varidp</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;momentumY&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now we have to define the global attributes and the units for a number of variables:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// global attribute</span>
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">NC_GLOBAL</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="s">&quot;Conventions&quot;</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;COARDS&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;coards&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="c1">// Add units attribute to the variable</span>
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_timeId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;seconds&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;seconds&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">m_xId</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;degrees_east&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;degrees_east&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_yId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">13</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">useSpherical</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;degrees_north&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;degrees_north&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_totalHeightId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;metersTotalHeight&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_bathymetryId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;metersBathymetry&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_momentumXId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;metersMomentumX&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_att_text</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                         </span><span class="n">m_momentumYId</span><span class="p">,</span>
+</span><span class="w">                         </span><span class="s">&quot;units&quot;</span><span class="p">,</span>
+<span class="w">                         </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">                         </span><span class="s">&quot;meters&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;metersMomentumY&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_enddef</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// ncid</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;enddef&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Finally, in accordance with convention, we calculate the latitude and longitude values by converting metres to degrees
+and write them to our netCDF file if we are using degrees as our unit:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="c1">// write longitude and latitude</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">stepLat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_scaleY</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">l_ny</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">stepLon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_scaleX</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">l_nx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">useSpherical</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">t_real</span><span class="w"> </span><span class="n">maxLat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_scaleY</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">t_real</span><span class="p">(</span><span class="w"> </span><span class="mi">110574</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">t_real</span><span class="w"> </span><span class="n">maxLon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_scaleX</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">111320</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cos</span><span class="p">(</span><span class="w"> </span><span class="n">maxLat</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">180</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">stepLat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxLat</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">l_ny</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">stepLon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxLon</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">l_nx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">t_real</span><span class="p">[</span><span class="n">l_ny</span><span class="p">];</span>
+<span class="w">    </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">t_real</span><span class="p">[</span><span class="n">l_nx</span><span class="p">];</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l_ny</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">stepLat</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l_nx</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">stepLon</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_var_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">          </span><span class="c1">// ncid</span>
+<span class="w">                              </span><span class="n">m_yId</span><span class="p">,</span><span class="w">    </span><span class="c1">// varid</span>
+<span class="w">                              </span><span class="n">lat</span><span class="w"> </span><span class="p">);</span><span class="w">           </span><span class="c1">// op</span>
+<span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putLatitude&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_var_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">         </span><span class="c1">// ncid</span>
+<span class="w">                              </span><span class="n">m_xId</span><span class="p">,</span><span class="w">  </span><span class="c1">// varid</span>
+<span class="w">                              </span><span class="n">lon</span><span class="w"> </span><span class="p">);</span><span class="w">          </span><span class="c1">// op</span>
+<span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putLongitude&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">lat</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">lon</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The create file will now look like this (only example):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>netcdf<span class="w"> </span>WriteNetCDF.test<span class="w"> </span><span class="o">{</span>
+dimensions:
+<span class="w">    </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>UNLIMITED<span class="w"> </span><span class="p">;</span><span class="w"> </span>//<span class="w"> </span><span class="o">(</span><span class="m">20</span><span class="w"> </span>currently<span class="o">)</span>
+<span class="w">    </span><span class="nv">longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span><span class="nv">latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
+variables:
+<span class="w">    </span>float<span class="w"> </span>longitude<span class="o">(</span>longitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">        </span>longitude:units<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;degrees_east&quot;</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>latitude<span class="o">(</span>latitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">        </span>latitude:units<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;degrees_north&quot;</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>time<span class="o">(</span><span class="nb">time</span><span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">        </span>time:units<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;seconds&quot;</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>totalHeight<span class="o">(</span>time,<span class="w"> </span>latitude,<span class="w"> </span>longitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>bathymetry<span class="o">(</span>time,<span class="w"> </span>latitude,<span class="w"> </span>longitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>momentumX<span class="o">(</span>time,<span class="w"> </span>latitude,<span class="w"> </span>longitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span>float<span class="w"> </span>momentumY<span class="o">(</span>time,<span class="w"> </span>latitude,<span class="w"> </span>longitude<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+
+//<span class="w"> </span>global<span class="w"> </span>attributes:
+<span class="w">        </span>:Conventions<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;COARDS&quot;</span><span class="w"> </span><span class="p">;</span>
+data:
+
+<span class="w"> </span><span class="nv">longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>.009981249,<span class="w"> </span><span class="m">0</span>.0199625,<span class="w"> </span><span class="m">0</span>.02994375,<span class="w"> </span><span class="m">0</span>.03992499,<span class="w"> </span><span class="m">0</span>.04990624,
+<span class="w">    </span><span class="m">0</span>.05988749,<span class="w"> </span><span class="m">0</span>.06986874,<span class="w"> </span><span class="m">0</span>.07984999,<span class="w"> </span><span class="m">0</span>.08983123<span class="w"> </span><span class="p">;</span>
+
+<span class="w"> </span><span class="nv">latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>.01004857,<span class="w"> </span><span class="m">0</span>.02009715,<span class="w"> </span><span class="m">0</span>.03014572,<span class="w"> </span><span class="m">0</span>.0401943,<span class="w"> </span><span class="m">0</span>.05024287,
+<span class="w">    </span><span class="m">0</span>.06029145,<span class="w"> </span><span class="m">0</span>.07034002,<span class="w"> </span><span class="m">0</span>.0803886,<span class="w"> </span><span class="m">0</span>.09043717<span class="w"> </span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Now we are implementing a function which allows to <strong>write</strong> the current time step to the created netCDF file.
+The function gets the current simulation time and the following values of the cells: total height, bathymetry,
+momentum in x direction and momentum in y direction. The check <code class="docutils literal notranslate"><span class="pre">isReadMode</span></code> ensures that we are using a netCDF
+writer and not a reader (netCDF reader constructor is empty).</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Header: NetCdf.h</span>
+<span class="c1">// File:   NetCdf.cpp</span>
+<span class="c1">// Test:   NetCdf.test.cpp</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::write</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span>
+<span class="w">                                     </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">,</span>
+<span class="w">                                     </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span>
+<span class="w">                                     </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span>
+<span class="w">                                     </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumY</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">isReadMode</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;This netCdf object is not initialized in write mode. Read mode can only be used to read from files.&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l_err</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">start</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m_time</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m_ny</span><span class="p">,</span><span class="w"> </span><span class="n">m_nx</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">ptrdiff_t</span><span class="w"> </span><span class="n">stride</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">ptrdiff_t</span><span class="w"> </span><span class="n">map</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">ptrdiff_t</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">m_stride</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m_time</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="c1">// index should be same as current time dimension</span>
+
+<span class="w">    </span><span class="c1">// write data</span>
+<span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_var1_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">              </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">m_timeId</span><span class="p">,</span><span class="w">            </span><span class="c1">// varid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">index</span><span class="p">,</span><span class="w">               </span><span class="c1">// indexp</span>
+</span><span class="hll"><span class="w">                               </span><span class="o">&amp;</span><span class="n">simulationTime</span><span class="w"> </span><span class="p">);</span><span class="w">   </span><span class="c1">// op</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putTime&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_varm_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">          </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">m_totalHeightId</span><span class="p">,</span><span class="w"> </span><span class="c1">// varid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">start</span><span class="p">,</span><span class="w">           </span><span class="c1">// startp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">count</span><span class="p">,</span><span class="w">           </span><span class="c1">// countp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">stride</span><span class="p">,</span><span class="w">          </span><span class="c1">// stridep</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">map</span><span class="p">,</span><span class="w">             </span><span class="c1">// imap</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">totalHeight</span><span class="w"> </span><span class="p">);</span><span class="w">   </span><span class="c1">// op</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putTotalHeight&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_varm_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">          </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">m_bathymetryId</span><span class="p">,</span><span class="w">  </span><span class="c1">// varid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">start</span><span class="p">,</span><span class="w">           </span><span class="c1">// startp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">count</span><span class="p">,</span><span class="w">           </span><span class="c1">// countp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">stride</span><span class="p">,</span><span class="w">          </span><span class="c1">// stridep</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">map</span><span class="p">,</span><span class="w">             </span><span class="c1">// imap</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">bathymetry</span><span class="w"> </span><span class="p">);</span><span class="w">    </span><span class="c1">// op</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putBathymetry&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_varm_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">          </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">m_momentumXId</span><span class="p">,</span><span class="w">   </span><span class="c1">// varid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">start</span><span class="p">,</span><span class="w">           </span><span class="c1">// startp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">count</span><span class="p">,</span><span class="w">           </span><span class="c1">// countp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">stride</span><span class="p">,</span><span class="w">          </span><span class="c1">// stridep</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">map</span><span class="p">,</span><span class="w">             </span><span class="c1">// imap</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">momentumX</span><span class="w"> </span><span class="p">);</span><span class="w">     </span><span class="c1">// op</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putMomentumX&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_varm_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span><span class="w">          </span><span class="c1">// ncid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">m_momentumYId</span><span class="p">,</span><span class="w">   </span><span class="c1">// varid</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">start</span><span class="p">,</span><span class="w">           </span><span class="c1">// startp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">count</span><span class="p">,</span><span class="w">           </span><span class="c1">// countp</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">stride</span><span class="p">,</span><span class="w">          </span><span class="c1">// stridep</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">map</span><span class="p">,</span><span class="w">             </span><span class="c1">// imap</span>
+</span><span class="hll"><span class="w">                               </span><span class="n">momentumY</span><span class="w"> </span><span class="p">);</span><span class="w">     </span><span class="c1">// op</span>
+</span><span class="hll"><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putMomentumY&quot;</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; writing to &#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">m_filePath</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;&#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="o">++</span><span class="n">m_time</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="netcdf-input">
+<h2>5.2 NetCDF Input<a class="headerlink" href="#netcdf-input" title="Link to this heading"></a></h2>
+<section id="artificial-tsunami-2d">
+<h3>1. Artificial Tsunami 2D<a class="headerlink" href="#artificial-tsunami-2d" title="Link to this heading"></a></h3>
+<p>The class <code class="docutils literal notranslate"><span class="pre">setups::ArtificialTsunami2d</span></code> provides a hard-coded implementation of the Equation shown below.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{d}(x, y) &amp; = &amp; 5 \cdot f(x)g(y) \\
+\text{f}(x) &amp; = &amp; \sin\left(\left(\frac{x}{500}+1\right) \cdot \pi\right) \\
+\text{g}(y) &amp; = &amp; -\left(\frac{y}{500}\right)^2 + 1
+\end{aligned}\end{split}\]</div>
+<p>Therefore some basic settings are set in the constructor of the class.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// Header: ArtificialTsunami2d.h</span>
+<span class="c1">/// File:   ArtificialTsunami2d.cpp</span>
+<span class="c1">/// Test:   ArtificialTsunami2d.test.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">ArtificialTsunami2d</span><span class="o">::</span><span class="n">ArtificialTsunami2d</span><span class="p">()</span>
+<span class="hll"><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">bathymetryHeight</span><span class="p">(</span><span class="w"> </span><span class="mi">-100</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">centerOffset</span><span class="p">(</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The implementation of the equation is completely done in the <code class="docutils literal notranslate"><span class="pre">getBathymetry</span></code> function.
+Where an if statement is used to check if the displacement needs to be applied.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: ArtificialTsunami2d.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="nf">tsunami_lab::setups::ArtificialTsunami2d::getBathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span>
+<span class="w">                                                                             </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="n">i_x</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">centerOffset</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="n">i_y</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">centerOffset</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="mi">-500</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">500</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="mi">-500</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">500</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">t_real</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">500</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">t_real</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bathymetryHeight</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">bathymetryHeight</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_5_3_1.mp4" type="video/mp4">
+    </video>
+</center></section>
+<section id="reading-a-netcdf">
+<h3>2. Reading a netCDF<a class="headerlink" href="#reading-a-netcdf" title="Link to this heading"></a></h3>
+<p>The reading is done by using the methods provided by the library <code class="docutils literal notranslate"><span class="pre">netCDF</span></code>.
+To provided a friendlier use the NetCdf class contains two read methods.</p>
+<ol class="arabic">
+<li><p>Reading one variable from the file:</p>
+<blockquote>
+<div><p>An input for a file path, a variable, a data output of the type <code class="docutils literal notranslate"><span class="pre">NetCdf::VarArray</span></code> and an optional timeStep are provided.
+The timeStep is used when data is read with a time dimension and the data set is to be read at a different time.
+The implementation forwards the input to an internally implemented read method, which is explained later.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// Header: NetCdf.h</span>
+<span class="c1">/// File:   NetCdf.cpp</span>
+<span class="c1">/// Test:   NetCdf.test.cpp</span>
+<span class="hll"><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::read</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">variableName</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                    </span><span class="n">VarArray</span><span class="o">&amp;</span><span class="w"> </span><span class="n">outData</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">timeStep</span><span class="w"> </span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="w">    </span><span class="n">_read</span><span class="p">(</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">variableName</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">outData</span><span class="p">,</span><span class="w"> </span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Reading multiple variables from one file:</p>
+<blockquote>
+<div><p>A template is provided that forces the user to enter the same number of variables as containers are provided for the data.
+A file path and an optional timeStep are also specified here.
+The implementation forwards the input again to an internally implemented read method.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="c1">/// Header: NetCdf.h</span>
+</span><span class="hll"><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span>
+</span><span class="hll"><span class="kt">void</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span>
+</span><span class="hll"><span class="w">           </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">variableName</span><span class="w"> </span><span class="p">)[</span><span class="n">N</span><span class="p">],</span>
+</span><span class="hll"><span class="w">           </span><span class="n">VarArray</span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">outData</span><span class="w"> </span><span class="p">)[</span><span class="n">N</span><span class="p">],</span>
+</span><span class="w">           </span><span class="kt">size_t</span><span class="w"> </span><span class="n">timeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// NOTE: this function needs to be in the header because a template is used</span>
+<span class="w">    </span><span class="n">_read</span><span class="p">(</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span><span class="w"> </span><span class="n">variableName</span><span class="p">,</span><span class="w"> </span><span class="n">outData</span><span class="p">,</span><span class="w"> </span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p><strong>internal read method</strong></p>
+<blockquote>
+<div><p>First a check is done if the netCdf was created in read mode.
+Then a cleanup is done if a <code class="docutils literal notranslate"><span class="pre">NetCdf::VarArray</span></code> array is passed that already contains data.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::_read</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span>
+<span class="w">                                    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">variableName</span><span class="p">,</span>
+<span class="w">                                    </span><span class="n">VarArray</span><span class="o">*</span><span class="w"> </span><span class="n">outData</span><span class="p">,</span>
+<span class="w">                                    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">timeStep</span><span class="p">,</span>
+<span class="w">                                    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">isReadMode</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;This netCdf object is not initialized in read mode. Write mode can only be used to write to a file.&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="o">~</span><span class="n">VarArray</span><span class="p">();</span>
+</span><span class="hll"><span class="w">        </span><span class="p">}</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[...]</span>
+</pre></div>
+</div>
+<p>Now the reading of the netCdf file can begin.
+To do this, the file is opened in non-write mode.
+And the longitude and latitude dimensions are read.
+The time dimension is only read if the timeStep is greater than zero and is therefore required to read the data at the correct location.</p>
+<p>Reading a dimension follows the same pattern, so it will only be explained for longitude.
+First, the variable to store the ID is created on the name that the netCdf uses as an alias for the longitude / x-axis.
+In this case, the aliases are <code class="docutils literal notranslate"><span class="pre">lon</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">X</span></code> and a check is made to see if any of them are included in the file.
+If none of the alias names are contained, a corresponding netcdf error is output.
+A do-while loop is used to check the existence and the first matching dimension is used.
+The order of the alias names therefore plays a role.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="c1">// open the file</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">ncID</span><span class="p">;</span>
+<span class="hll"><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_open</span><span class="p">(</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span><span class="w"> </span><span class="n">NC_NOWRITE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ncID</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readFile&quot;</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="c1">// check of lon, longitude, x, X and get the corresponding dimension size</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">lonID</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">lonNames</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;lon&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;longitude&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">lonNameSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="n">lonNames</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">lonNameIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">do</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_dimid</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">lonNames</span><span class="p">[</span><span class="n">lonNameIndex</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lonID</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">++</span><span class="n">lonNameIndex</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lonNameSize</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readLongitude&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="kt">size_t</span><span class="w"> </span><span class="n">lonSize</span><span class="p">;</span>
+<span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_dimlen</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">lonID</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lonSize</span><span class="w"> </span><span class="p">);</span>
+<span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readLongitudeSize&quot;</span><span class="w"> </span><span class="p">);</span>
+
+
+<span class="c1">// check of lat, latitude, y, Y and get the corresponding dimension size</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">latID</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">latNames</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;lat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;latitude&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="p">[...]</span>
+
+<span class="c1">// check of time, date, t, T and get the corresponding dimension size</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">timeID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">timeSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">timeStep</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">timeNames</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;time&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;date&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;t&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;T&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">timeStep</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">timeSize</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: The Timestep can not be higher than the available time dimensions in this file (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">filepath</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The specified variables are parsed using a for loop.
+First the ID is retrieved and the type of the variable is parsed, checked and saved.
+The nc_type <code class="docutils literal notranslate"><span class="pre">NC_NAT</span></code> leads to an error, as it cannot be represented by a suitable data type.
+Then the dimensions of the variable are parsed by retrieving the number of dimensions and all dimension IDs contained in the variable.
+In the next step, the length of the data array is calculated using if statements and a for loop and the timeStep for the start of the data set is saved.
+A warning is issued if the length of the data set is 1 or less.
+This is the case if a dimension is zero or the variable does not contain a longitude or latitude dimension.
+Finally, the corresponding typed array is created with a large switch statement and stored in <code class="docutils literal notranslate"><span class="pre">NetCdf::VarArray</span></code>, which also handles the deletion of the arrays with a switch statement.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="c1">// get the variables with their data</span>
+<span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// get the variable</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variableName</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="hll"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">varID</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_varid</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">varID</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readVarID&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// get the variable type</span>
+<span class="hll"><span class="w">    </span><span class="n">nc_type</span><span class="w"> </span><span class="n">varType</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_vartype</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">varID</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">varType</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readVarType&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">NC_NAT</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: The parsed type of the variable is NAT (Not a Type)&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">variableName</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">NC_BYTE</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VarType</span><span class="o">::</span><span class="n">CHAR</span><span class="p">;</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">VarType</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">varType</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// get the number of dimensions included used by the variable</span>
+<span class="hll"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">varDimCount</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_varndims</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">varID</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">varDimCount</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readVarDimCount&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDimCount</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The given variable (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">variableName</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;) does not have any dimensions&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// get the dimensions id&#39;s from the variable</span>
+<span class="hll"><span class="w">    </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">varDims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="n">varDimCount</span><span class="p">];</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_inq_vardimid</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">varID</span><span class="p">,</span><span class="w"> </span><span class="n">varDims</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;readVarDimCount&quot;</span><span class="w"> </span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="c1">// parse the dimensions and calculate length, count and start</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">size_t</span><span class="p">[</span><span class="n">varDimCount</span><span class="p">]{</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">size_t</span><span class="p">[</span><span class="n">varDimCount</span><span class="p">];</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">fill_n</span><span class="p">(</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">varDimCount</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDimCount</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="c1">// COARDS standard require the dimension order T, Z, Y, X</span>
+</span><span class="hll"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">i</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">varDimCount</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">timeID</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">            </span><span class="p">{</span>
+</span><span class="hll"><span class="w">                </span><span class="n">start</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeStep</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="k">break</span><span class="p">;</span>
+</span><span class="hll"><span class="w">            </span><span class="p">}</span>
+</span><span class="hll"><span class="w">            </span><span class="n">i</span><span class="o">++</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="p">}</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDims</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">latID</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="n">count</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">            </span><span class="n">length</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">latSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="p">}</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDims</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">latID</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">count</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">length</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">latSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span><span class="hll"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">varDims</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">lonID</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">count</span><span class="p">[</span><span class="n">varDimCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lonSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">length</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">lonSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lonSize</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span>
+<span class="w">    </span><span class="c1">// Warning for small size</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\033</span><span class="s">[0m&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">yellow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\033</span><span class="s">[33;49m&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">yellow</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;WARNING: one or less values were read from the variable &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">variableName</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// initialize the data storage for the variable</span>
+<span class="w">    </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="k">switch</span><span class="p">(</span><span class="w"> </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">CHAR</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">char</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">SHORT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">short</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">INT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">FLOAT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">float</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">DOUBLE</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">double</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">UCHAR</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">USHORT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">UINT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">INT64</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int64_t</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">UINT64</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">uint64_t</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">VarType</span><span class="o">::</span><span class="no">STRING</span><span class="p">:</span>
+<span class="w">            </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_get_vara</span><span class="p">(</span><span class="w"> </span><span class="n">ncID</span><span class="p">,</span><span class="w"> </span><span class="n">varID</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">outData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// free memory</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">varDims</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">start</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>At last the netCdf file is closed and the read of the file is finished.</p>
+</div></blockquote>
+</section>
+<section id="tsunami-event-2d">
+<h3>3. Tsunami Event 2d<a class="headerlink" href="#tsunami-event-2d" title="Link to this heading"></a></h3>
+<p id="tsunami-event-2s-equation">The <code class="docutils literal notranslate"><span class="pre">TsunamiEvent2d</span></code> class use two files to get the bathymetry and the displacement.
+The following equation shows a quick overview which values the <code class="docutils literal notranslate"><span class="pre">TsunamiEvent2d</span></code> class returns.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{split}
+    h  &amp;= \begin{cases}
+            \max( -b_\text{in}, \delta), &amp;\text{if } b_\text{in} &lt; 0 \\
+            0, &amp;\text{else}
+        \end{cases}\\
+    hu &amp;= 0\\
+    hv &amp;= 0\\
+    b  &amp;= \begin{cases}
+            \min(b_\text{in}, -\delta) + d, &amp; \text{ if } b_\text{in} &lt; 0\\
+            \max(b_\text{in}, \delta) + d, &amp; \text{ else}.
+        \end{cases}
+\end{split}\end{split}\end{split}\]</div>
+<p>The constructor loads the data from the bathymetry and displacement netcdf files using the discussed read method from the class <code class="docutils literal notranslate"><span class="pre">tsunami_lab::io::NetCdf</span></code>.
+Then the type of the data set is check, which should always be float and stored into the <code class="docutils literal notranslate"><span class="pre">TsunamiEvent2d</span></code> properties.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// Header: TsunamiEvent2d.h</span>
+<span class="c1">/// File:   TsunamiEvent2d.cpp</span>
+<span class="c1">/// Test:   TsunamiEvent2d.test.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">TsunamiEvent2d</span><span class="o">::</span><span class="n">TsunamiEvent2d</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">bathymetryFilePath</span><span class="p">,</span>
+<span class="w">                                                    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bathymetryVariable</span><span class="w"> </span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span>
+<span class="w">                                                    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">displacementFilePath</span><span class="p">,</span>
+<span class="w">                                                    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">displacementVariable</span><span class="w"> </span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span>
+<span class="w">                                                    </span><span class="n">t_real</span><span class="w"> </span><span class="n">scaleX</span><span class="p">,</span>
+<span class="w">                                                    </span><span class="n">t_real</span><span class="w"> </span><span class="n">scaleY</span><span class="p">,</span>
+<span class="w">                                                    </span><span class="n">t_real</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">scaleX</span><span class="p">(</span><span class="w"> </span><span class="n">scaleX</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">scaleY</span><span class="p">(</span><span class="w"> </span><span class="n">scaleY</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">delta</span><span class="p">(</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// read &amp; check the bathymetry data</span>
+<span class="hll"><span class="w">    </span><span class="n">reader</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetryFilePath</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetryVariable</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetryData</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The read data for bathymetry is not of type float&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// read &amp; check the displacement data</span>
+<span class="hll"><span class="w">    </span><span class="n">reader</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="w"> </span><span class="n">displacementFilePath</span><span class="p">,</span><span class="w"> </span><span class="n">displacementVariable</span><span class="p">,</span><span class="w"> </span><span class="n">displacementData</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The read data for displacement is not of type float&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// assign the data to bathymetry and displacement</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">bathymetry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">bathymetrySize</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">length</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">displacement</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">displacementSize</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">length</span><span class="p">;</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">getBathymetry</span></code> function determines the cell closest to the passed coordinates and returns the bathymetry of the cell, with an additional displacement if applicable.
+First the coordinate are scaled to fit on the bathymetry coordinate system.
+Then the value of the closest bathymetry cell is retrieved using the function <code class="docutils literal notranslate"><span class="pre">getValueAscending</span></code> which will be explained later.
+If the coordinates are inside the displacement area also value of the closest displacement cell is retrieved.
+At least the the bathymetry with displacement is returned as stated in the <a class="reference internal" href="#tsunami-event-2s-equation">equation above</a>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: TsunamiEvent2d.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="nf">tsunami_lab::setups::TsunamiEvent2d::getBathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span>
+<span class="w">                                                                        </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// calculate the x coordinate scaled to the bathymetry coordinate system.</span>
+<span class="hll"><span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">scaleX</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">bathymetrySize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+</span><span class="hll"><span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">scaleY</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">bathymetrySize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+</span>
+<span class="w">    </span><span class="c1">// obtain the closest value</span>
+<span class="hll"><span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getValueAscending</span><span class="p">(</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetrySize</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetryData</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">stride</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">displacementSize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+</span><span class="hll"><span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">displacement</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">displacement</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">displacementSize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getValueAscending</span><span class="p">(</span><span class="w"> </span><span class="n">displacement</span><span class="p">,</span><span class="w"> </span><span class="n">displacementSize</span><span class="p">,</span><span class="w"> </span><span class="n">displacementData</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">stride</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">getHeight</span></code> implementation is similar except that the displacement is not calculated and the <a class="reference internal" href="#tsunami-event-2s-equation">equation above</a> states that as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="w"> </span><span class="o">-</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">getValueAscending</span></code> function, which has the task of finding the nearest cell.
+First, the start and end pointers of the array are calculated.
+Then we use the <code class="docutils literal notranslate"><span class="pre">lower_bound</span></code> function to find the position where we should place our element without changing the order of the array.
+For example, the array <code class="docutils literal notranslate"><span class="pre">{-1,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">5}</span></code> with the value <code class="docutils literal notranslate"><span class="pre">0.5</span></code>. The function <code class="docutils literal notranslate"><span class="pre">lower_limit</span></code> returns the pointer that currently contains the value <code class="docutils literal notranslate"><span class="pre">1</span></code>.
+Therefore, our value is between the address returned by lower_bound and the element before it, i.e. <code class="docutils literal notranslate"><span class="pre">elementAddress</span></code> and <code class="docutils literal notranslate"><span class="pre">elementAddress</span> <span class="pre">-</span> <span class="pre">1</span></code>.
+Then we check if the function <code class="docutils literal notranslate"><span class="pre">lower_bound</span></code> was returned successfully.
+Now we can retrieve the index by checking which of the two values is closer and performing a corresponding pointer arithmetic.
+I.e. <code class="docutils literal notranslate"><span class="pre">xIndex</span> <span class="pre">=</span> <span class="pre">(</span> <span class="pre">std::abs(</span> <span class="pre">(</span> <span class="pre">*xLower</span> <span class="pre">)</span> <span class="pre">-</span> <span class="pre">x</span> <span class="pre">)</span> <span class="pre">&lt;</span> <span class="pre">std::abs(</span> <span class="pre">(</span> <span class="pre">*xHigh</span> <span class="pre">)</span> <span class="pre">-</span> <span class="pre">x</span> <span class="pre">)</span> <span class="pre">?</span> <span class="pre">xLower</span> <span class="pre">:</span> <span class="pre">xHigh</span> <span class="pre">)</span> <span class="pre">-</span> <span class="pre">xBegin;</span></code> where the part before the question mark compares the distance and then the index is calculated by subtracting the address begin.
+This is done for the x and y direction.
+Finally, we can calculate the index using the <code class="docutils literal notranslate"><span class="pre">zStride</span></code> and return the value found.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The array entered must be sorted in ascending order!</p>
+</div>
+<p><strong>getValueAscending</strong></p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="nf">tsunami_lab::setups::TsunamiEvent2d::getValueAscending</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+<span class="w">                                                                            </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">size</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+<span class="w">                                                                            </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">zStride</span><span class="p">,</span>
+<span class="w">                                                                            </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">x</span><span class="p">,</span>
+<span class="w">                                                                            </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Because the x dimension and y dimension are sorted (ascending) the current x and y position can be found using a binary search (lower bound)</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">xBegin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">xEnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xBegin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">yBegin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">yEnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yBegin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">lower_bound</span><span class="p">(</span><span class="w"> </span><span class="n">xBegin</span><span class="p">,</span><span class="w"> </span><span class="n">xEnd</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">lower_bound</span><span class="p">(</span><span class="w"> </span><span class="n">yBegin</span><span class="p">,</span><span class="w"> </span><span class="n">yEnd</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">xLower</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// can be done because array is sorted ascending</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">yLower</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">xEnd</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">yEnd</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;WARNING: Could not found lower bound. Defaulting to zero&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// calculate the index to get the data</span>
+<span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">xIndex</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">yIndex</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">xEnd</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">xIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xLower</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">xBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">xLower</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">xBegin</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">xIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">xBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">xIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">xLower</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">xHigh</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">xLower</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">xHigh</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">xBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">yEnd</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">yIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xLower</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">xBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">yLower</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">yBegin</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">yIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">yIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">yLower</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">yHigh</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">yLower</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">yHigh</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yBegin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yIndex</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">zStride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">xIndex</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;WARNING: Index out of range. Defaulting to zero&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">index</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="comparison">
+<h3>4. Comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h3>
+<p><strong>Visualization of setups::ArtificialTsunami2d</strong></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_5_3_1.mp4" type="video/mp4">
+    </video>
+</center><p><strong>Visualization of setups::TsunamiEvent2d</strong></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_5_3_3.mp4" type="video/mp4">
+    </video>
+</center><p>Both are visualized with 1000x1000 cells over a simulation time of 300 seconds.</p>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="two_dimensional_solver.html" class="btn btn-neutral float-left" title="4. Two-Dimensional Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tsunami_simulation.html" class="btn btn-neutral float-right" title="6. Tsunami Simulations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

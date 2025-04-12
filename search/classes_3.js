@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['setup_26',['Setup',['../classtsunami__lab_1_1setups_1_1Setup.html',1,'tsunami_lab::setups']]]
+  ['fwave_0',['FWave',['../classtsunami__lab_1_1solvers_1_1FWave.html',1,'tsunami_lab::solvers']]]
 ];

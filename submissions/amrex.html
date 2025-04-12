@@ -1,0 +1,1287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>11. Adaptive Mesh Refinement &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tsunami_lab" href="../api/tsunami_lab.html" />
+    <link rel="prev" title="10. Individual Phase" href="individual_phase.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">11. Adaptive Mesh Refinement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">11.1 Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#essential-data-infrastructures">11.2 Essential data infrastructures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basics">Basics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subcycling-level-synchronization">Subcycling &amp; Level synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flowchart">Flowchart</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-walkthrough">11.3 Code-Walkthrough</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#amrmesh-and-amrcore">AmrMesh and AmrCore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initialize-finalize">Initialize &amp; Finalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parmparse">ParmParse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initfromscratch">InitFromScratch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initdata">InitData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evolve">Evolve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writeplotfile">WritePlotFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timestepwithsubcycling">timeStepWithSubcycling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advancegridatlevel">AdvanceGridAtLevel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance">11.4 Performance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-balancing">Load Balancing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmarks">Benchmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id26">11.5 Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accuracy">Accuracy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#amr-tsunami">AMR Tsunami</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#building-running-the-amr-project">11.6 Building &amp; Running the AMR Project</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-simulation">Running the Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-output">Simulation Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id27">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">11. Adaptive Mesh Refinement</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/amrex.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="adaptive-mesh-refinement">
+<span id="submissions-amrex"></span><h1>11. Adaptive Mesh Refinement<a class="headerlink" href="#adaptive-mesh-refinement" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>11.1 Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p><strong>What is Adaptive Mesh Refinement and why does it make sense to use it to simulate tsunamis?</strong></p>
+<p>Adaptive mesh refinement (AMR) serves as a valuable numerical technique in simulations, dynamically adjusting
+computational mesh resolution based on evolving solution features. This approach provides several overarching
+advantages.</p>
+<p>AMR optimizes computational efficiency by strategically allocating grid points. This involves concentrating resources
+in regions of interest while reducing resolution in less critical areas. Consequently, this adaptive strategy yields
+significant computational savings compared to simulations employing a uniform mesh.</p>
+<p>In terms of accuracy, AMR proves advantageous by maintaining high resolution in areas experiencing rapid changes or
+featuring important phenomena. This adaptability results in more precise and reliable simulation outcomes compared to
+those achieved with a fixed mesh.</p>
+<p>Moreover, AMR contributes to reduced memory requirements. By utilizing a finer mesh only where necessary, memory
+demands are minimized. This is particularly beneficial for large-scale simulations where memory constraints often serve
+as limiting factors.</p>
+</section>
+<section id="essential-data-infrastructures">
+<h2>11.2 Essential data infrastructures<a class="headerlink" href="#essential-data-infrastructures" title="Link to this heading"></a></h2>
+<p>To avoid misunderstandings and to provide a basic overview of <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> data structures, let us introduce the concept of
+the data types we use. We will begin by providing a list of classes, allowing you to refer back to them as needed.
+Afterwards, we will use a simple diagram to help you understand the construction and relationships between the different
+data types used. Additional information is always available in the
+<a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/">AMReX documentation</a>.</p>
+<section id="basics">
+<h3>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h3>
+<p><strong>Box</strong></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">Box</span></code> in <code class="docutils literal notranslate"><span class="pre">AMReX_Box.H</span></code> is the data structure for representing a rectangular domain in indexing space. <code class="docutils literal notranslate"><span class="pre">Box</span></code> is a
+dimension-dependent class. It has lower and upper corners (represented by <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#intvect">IntVect</a>)
+and an index type (represented by <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#indextype">IndexType</a>).
+A <code class="docutils literal notranslate"><span class="pre">Box</span></code> contains no floating-point data.”<a class="footnote-reference brackets" href="#id29" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p><strong>BoxArray</strong></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> is a class in <code class="docutils literal notranslate"><span class="pre">AMReX_BoxArray.H</span></code> for storing a collection of Boxes on a single AMR level. One can make a
+<code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> out of a single <code class="docutils literal notranslate"><span class="pre">Box</span></code> and then chop it into multiple Boxes. In AMReX, <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> is a global data structure.
+It holds all the Boxes in a collection, even though a single process in a parallel run only owns some of the Boxes via
+domain decomposition.”<a class="footnote-reference brackets" href="#id30" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<p><strong>DistributionMapping</strong></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> is a class in <code class="docutils literal notranslate"><span class="pre">AMReX_DistributionMapping.H</span></code> that describes which process owns the data living on the
+domains specified by the Boxes in a <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code>. Like <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code>, there is an element for each <code class="docutils literal notranslate"><span class="pre">Box</span></code> in <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>,
+including the ones owned by other parallel processes. One can construct a <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> object given a <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code>,
+or by simply making a copy.”<a class="footnote-reference brackets" href="#id31" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+<p><strong>BaseFab</strong></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">BaseFab</span></code> is a class template for multidimensional array-like data structure on a <code class="docutils literal notranslate"><span class="pre">Box</span></code>. The template parameter
+is typically basic types such as Real, int or char. The dimensionality of the array is <code class="docutils literal notranslate"><span class="pre">AMREX_SPACEDIM</span></code> (here 2) plus
+one. The additional dimension is for the number of components.”<a class="footnote-reference brackets" href="#id32" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+<p><strong>Array4</strong></p>
+<p>“Array4 is a class template for accessing BaseFab data in a more array like manner.”<a class="footnote-reference brackets" href="#id32" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+<p><strong>FabArray</strong></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">FabArray&lt;FAB&gt;</span></code> is a class template in AMReX_FabArray.H for a collection of FABs on the same AMR level associated
+with a <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code>. The template parameter <code class="docutils literal notranslate"><span class="pre">FAB</span></code> is usually <code class="docutils literal notranslate"><span class="pre">BaseFab&lt;T&gt;</span></code>.”<a class="footnote-reference brackets" href="#id33" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p>
+<p><strong>MultiFab</strong></p>
+<p>“In AMReX, there are some specialized classes derived from <code class="docutils literal notranslate"><span class="pre">FabArray</span></code>. The most commonly used <code class="docutils literal notranslate"><span class="pre">FabArray</span></code> kind class
+is <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> in AMReX_MultiFab.H derived from <code class="docutils literal notranslate"><span class="pre">FabArray</span> <span class="pre">&lt;FArrayBox&gt;</span></code>
+(<a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#basefab-farraybox-iarraybox-and-array4">FArrayBox</a>).”<a class="footnote-reference brackets" href="#id33" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p>
+<p><strong>Geometry</strong></p>
+<p>“The <code class="docutils literal notranslate"><span class="pre">Geometry</span></code> class in`` AMReX_Geometry.H`` describes problem domain and coordinate system for rectangular problem
+domains.”<a class="footnote-reference brackets" href="#id34" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p>
+</section>
+<section id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Link to this heading"></a></h3>
+<p><strong>Basic structure</strong></p>
+<center>
+    <img src="../_static/photos/AMR_Explanation_01.png" alt="Visualization of the input data">
+</center>
+<br><p>The <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> can be seen as a storage container for multiple boxes that are distributed over multiple processes managed by the <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>.
+Each <code class="docutils literal notranslate"><span class="pre">Box</span></code> contains the array index required to iterate over the correct part of the underlying array.
+Note that a <code class="docutils literal notranslate"><span class="pre">Box</span></code> does <strong>not</strong> include the index for ghost cells that are defined through the <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code>.
+The underlying array is called <code class="docutils literal notranslate"><span class="pre">Array4</span></code> as it stores x, y, z dimension and an additional dimension for components.
+The components are used to store multiple values in one <code class="docutils literal notranslate"><span class="pre">Array4</span></code> respectively <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code>.
+E.g. In this project the components are used to store the height, momentum X, momentum Y, bathymetry and the error in one single <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code>.</p>
+<p>The next stage is realized by creating a new <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code>, which stores boxes that do not extend over the entire domain.
+These boxes are filled by the coarser underlying boxes.</p>
+<p><strong>Neighbouring Boxes in detail</strong></p>
+<center>
+    <img src="../_static/photos/AMR_Explanation_02.png" alt="Visualization of the input data">
+</center>
+<br><p>As mentioned before the boxes are distributed over the processes.
+Therefore communication is needed to transfer data between boxes.
+This is automatically done by AMReX by calling <code class="docutils literal notranslate"><span class="pre">FillBoundary</span></code> function.
+The ghost cells are then typically filled with the data of valid cells, i.e. with the overlapping cells within the adjacent <code class="docutils literal notranslate"><span class="pre">Box</span></code>.</p>
+</section>
+<section id="subcycling-level-synchronization">
+<h3>Subcycling &amp; Level synchronization<a class="headerlink" href="#subcycling-level-synchronization" title="Link to this heading"></a></h3>
+<p>Since we divide the cells to fine the level, the time step needs to be divided too to keep numerical accuracy. On the
+other hand, we need to synchronize the time step to transfer the data from fine to coarse and to fill new fine patches
+with data from the coarser level. To achieve this we use <strong>subscycling</strong>. The figure below shows the main concept for
+three AMR levels.</p>
+<figure class="align-default" id="id46">
+<a class="reference internal image-reference" href="https://amrex-codes.github.io/amrex/docs_html/_images/subcycling.png"><img alt="https://amrex-codes.github.io/amrex/docs_html/_images/subcycling.png" src="https://amrex-codes.github.io/amrex/docs_html/_images/subcycling.png" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">“Schematic of subcycling-in-time algorithm.”<a class="footnote-reference brackets" href="#id35" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id46" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Therefore, we calculate the simulation in the following sequence of steps:</p>
+<ol class="arabic simple">
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=0\)</span> over <span class="math notranslate nohighlight">\(\Delta t\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=1\)</span> over <span class="math notranslate nohighlight">\(\Delta t/2\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=2\)</span> over <span class="math notranslate nohighlight">\(\Delta t/4\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=2\)</span> over <span class="math notranslate nohighlight">\(\Delta t/4\)</span>.</p></li>
+<li><p>Synchronize levels <span class="math notranslate nohighlight">\(\ell=1,2\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=1\)</span> over <span class="math notranslate nohighlight">\(\Delta t/2\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=2\)</span> over <span class="math notranslate nohighlight">\(\Delta t/4\)</span>.</p></li>
+<li><p>Advance <span class="math notranslate nohighlight">\(\ell=2\)</span> over <span class="math notranslate nohighlight">\(\Delta t/4\)</span>.</p></li>
+<li><p>Synchronize levels <span class="math notranslate nohighlight">\(\ell=1,2\)</span>.</p></li>
+<li><p>Synchronize levels <span class="math notranslate nohighlight">\(\ell=0,1\)</span>.</p></li>
+</ol>
+<p>At the end one coarse step is finished, and we evolve to the next coarse time step.</p>
+<p>To compensate for the mismatch in height, momentum X and momentum Y in levels <span class="math notranslate nohighlight">\(\ell\)</span> and <span class="math notranslate nohighlight">\(\ell + 1\)</span>, we
+synchronise between these levels. “This is simply corrected by overwriting covered coarse cells to be the average of the
+overlying fine cells.”<a class="footnote-reference brackets" href="#id35" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p>
+</section>
+<section id="flowchart">
+<h3>Flowchart<a class="headerlink" href="#flowchart" title="Link to this heading"></a></h3>
+<p>Here we want to give you a rough overview of the program. To do this, we have made a <strong>flowchart</strong> of the main
+functions that the program goes through. The <a class="reference internal" href="#codewalkthrough"><span class="std std-ref">next chapter</span></a> explains the process in more detail and the steps the
+programme has to perform.</p>
+<center>
+    <img src="../_static/photos/AMRFlowchart.png" alt="Visualization of the input data">
+</center></section>
+</section>
+<section id="code-walkthrough">
+<h2>11.3 Code-Walkthrough<a class="headerlink" href="#code-walkthrough" title="Link to this heading"></a></h2>
+<p id="codewalkthrough">In this section, we want to explain the process of our program step by step, so that you can become familiar with the
+code. We are going to start the course in our <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> file and follow along with the code.</p>
+<section id="amrmesh-and-amrcore">
+<h3>AmrMesh and AmrCore<a class="headerlink" href="#amrmesh-and-amrcore" title="Link to this heading"></a></h3>
+<p id="meshandcore">We use <code class="docutils literal notranslate"><span class="pre">AmrMesh</span></code> and <code class="docutils literal notranslate"><span class="pre">AmrCore</span></code> as the basic structure.</p>
+<p>“For single-level simulations the user needs to build <code class="docutils literal notranslate"><span class="pre">Geometry</span></code>, <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>, and <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> objects
+associated with the simulation. For simulations with multiple levels of refinement, the <code class="docutils literal notranslate"><span class="pre">AmrMesh</span></code> class can be thought
+of as a container to store arrays of these objects (one for each level), and information about the current grid structure.”<a class="footnote-reference brackets" href="#id36" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p>
+<p>“<code class="docutils literal notranslate"><span class="pre">AMReX_AmrCore.cpp/H</span></code> contains the pure virtual class <code class="docutils literal notranslate"><span class="pre">AmrCore</span></code>, which is derived from the <code class="docutils literal notranslate"><span class="pre">AmrMesh</span></code> class.
+<code class="docutils literal notranslate"><span class="pre">AmrCore</span></code> does not actually have any data members, just additional member functions, some of which override the base
+class <code class="docutils literal notranslate"><span class="pre">AmrMesh</span></code>.”<a class="footnote-reference brackets" href="#id36" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p>
+<p>“There are no pure virtual functions in <code class="docutils literal notranslate"><span class="pre">AmrMesh</span></code>, but there are 5 pure virtual functions in the <code class="docutils literal notranslate"><span class="pre">AmrCore</span></code> class.
+Any applications you create must implement these functions. The tutorial code <code class="docutils literal notranslate"><span class="pre">Amr/Advection_AmrCore</span></code> provides
+sample implementation in the derived class <code class="docutils literal notranslate"><span class="pre">AmrCoreAdv</span></code>.”<a class="footnote-reference brackets" href="#id36" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p>
+<p>We will introduce them now because some of them are only called internally by <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> functions, so we may not mention
+them in the code walkthrough.</p>
+<p><strong>ErrorEst</strong></p>
+<p>To refine cells, this method uses <code class="docutils literal notranslate"><span class="pre">TagBoxArray</span></code> tags built on level grids. The refinement process begins by
+calculating an <strong>error</strong> with the kernel <code class="docutils literal notranslate"><span class="pre">state_error</span></code>, and then tagging the cells accordingly.
+Do not be overwhelmed by this block of code.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;ErrorEst&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::ErrorEst</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">MFIter</span><span class="w"> </span><span class="n">mfi</span><span class="p">(</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">isValid</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">mfi</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Box</span><span class="o">&amp;</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">validbox</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_X</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_Y</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bathymetry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">BATHYMERTRY</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">ERROR</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">tagfab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tags</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="w"> </span><span class="p">);</span>
+
+<span class="hll"><span class="w">        </span><span class="n">ParallelFor</span><span class="p">(</span><span class="w"> </span><span class="n">bx</span><span class="p">,</span>
+</span><span class="w">                     </span><span class="p">[</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="n">AMREX_GPU_DEVICE</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="hll"><span class="w">            </span><span class="n">state_error</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">tagfab</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span><span class="w"> </span><span class="n">momentumY</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">gridError</span><span class="p">,</span><span class="w"> </span><span class="n">tagval</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#id16"><span class="std std-ref">Here</span></a> we will explain the logic behind the <code class="docutils literal notranslate"><span class="pre">MFIter</span></code> and <code class="docutils literal notranslate"><span class="pre">ParallelFor</span></code> loop. We will skip this for
+now because we do not want to throw you in at the deep end. It is only important at the moment that we call
+<code class="docutils literal notranslate"><span class="pre">state_error</span></code>, which is our kernel function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/include/amr/Kernels.h&#39;</span>
+<span class="c1">/// Function: &#39;state_error</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">state_error</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">divHeight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">velocityX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">divHeight</span><span class="p">;</span>
+<span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">velocityY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">momentumY</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">divHeight</span><span class="p">;</span>
+<span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">waveHeight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">);</span>
+<span class="hll"><span class="w">    </span><span class="n">error</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">velocityX</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">velocityX</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">velocityY</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">velocityY</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">waveHeight</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">waveHeight</span><span class="p">;</span>
+</span><span class="w">    </span><span class="c1">// the gridErr is squared therefore we can use the error squared too</span>
+<span class="hll"><span class="w">    </span><span class="n">tag</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">error</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gridErr</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tagval</span><span class="p">;</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Our criteria for determining whether to tag the cell is in the first highlighted line. The calculation involves squaring
+the velocity in both the x and y directions and multiplying the result by the squared water height. The reason for using
+these criteria is simple. We debugged different characteristics of our cells and experimented with various combinations.
+We ended up with the best and most reliable criteria, which you can see here. Overall, it is logical that velocity and
+water height are descriptive properties.</p>
+<p>In the second highlighted line, we either set or do not set the tag. The <code class="docutils literal notranslate"><span class="pre">gridErr</span></code> is defined in <code class="docutils literal notranslate"><span class="pre">inputs.amrex</span></code>
+(<strong>tsunami.griderr</strong>) and varies depending on the level.</p>
+<p><strong>MakeNewLevelFromScratch</strong></p>
+<p>Make a new level from scratch using provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>. Only used during initialization.
+Upon creating the simulation, the first level is initialized.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;MakeNewLevelFromScratch&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::MakeNewLevelFromScratch</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// init the multifab</span>
+<span class="w">    </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">define</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">gridOld</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">define</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// set the time</span>
+<span class="w">    </span><span class="n">tNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tOld</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">level</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">InitData</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>MakeNewLevelFromCoarse</strong></p>
+<p>Make a new level using provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> and fill with interpolated coarse level data.
+This phrase is used whenever a new level needs to be created. For example, to create a refinement of level 3, we must
+create a level from level 2, which is considered coarse in this case.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;MakeNewLevelFromCoarse&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::MakeNewLevelFromCoarse</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// init the multifab</span>
+<span class="w">    </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">define</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">gridOld</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">define</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// set the time</span>
+<span class="w">    </span><span class="n">tNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tOld</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">level</span><span class="p">];</span>
+
+<span class="hll"><span class="w">    </span><span class="n">FillFinePatch</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">FillFinePatch</span></code> is a helper function. The entire <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> is filled by interpolating from the coarser level when
+a new level of refinement appears.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;FillFinePatch&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::FillFinePatch</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="c1">// decomp is the starting component of the destination. Therefore scomp = dcomp</span>
+<span class="w">    </span><span class="n">InterpFromCoarseLevel</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">cmf</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+<span class="w">                           </span><span class="n">cphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">fphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">refRatio</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                           </span><span class="n">interpolator</span><span class="p">,</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// do a piecewise constant interpolation to fill cell near the shore i.e. |bathymetry| &lt; bathymetryMinValue</span>
+<span class="w">    </span><span class="n">MultiFab</span><span class="w"> </span><span class="n">tmf</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">boxArray</span><span class="p">(),</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">DistributionMap</span><span class="p">(),</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">nGrow</span><span class="p">()</span><span class="w"> </span><span class="p">);</span>
+<span class="hll"><span class="w">    </span><span class="n">InterpFromCoarseLevel</span><span class="p">(</span><span class="w"> </span><span class="n">tmf</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">cmf</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+</span><span class="w">                           </span><span class="n">cphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">fphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">refRatio</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                           </span><span class="o">&amp;</span><span class="n">pc_interp</span><span class="p">,</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FixFinePatch</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">,</span><span class="w"> </span><span class="n">tmf</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The last line <code class="docutils literal notranslate"><span class="pre">FixFinePatch</span></code> fixes the <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> interpolation from the coarser level. This is relevant when
+the fine level is created or updated. It replaces the values of mf with <code class="docutils literal notranslate"><span class="pre">const_mf</span></code> for the cell near the shore where
+|bathymetry| &lt; bathymetryMinValue and set the height on the coast to zero. To prevent the issue of dry-wet, this is
+necessary.</p>
+<p><strong>RemakeLevel</strong></p>
+<p>Remake an existing level using provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> and fill with existing fine and coarse
+data.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;RemakeLevel&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::RemakeLevel</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">MultiFab</span><span class="w"> </span><span class="n">new_state</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">MultiFab</span><span class="w"> </span><span class="n">old_state</span><span class="p">(</span><span class="w"> </span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="n">dm</span><span class="p">,</span><span class="w"> </span><span class="n">nComponents</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FillPatch</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">new_state</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="w"> </span><span class="n">new_state</span><span class="p">,</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="w"> </span><span class="n">old_state</span><span class="p">,</span><span class="w"> </span><span class="n">gridOld</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">tNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tOld</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">level</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>ClearLevel</strong></p>
+<p>This function deletes level data to clean up.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;ClearLevel&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::ClearLevel</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="n">gridOld</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">clear</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="initialize-finalize">
+<h3>Initialize &amp; Finalize<a class="headerlink" href="#initialize-finalize" title="Link to this heading"></a></h3>
+<p>“To use AMReX, we need to call <code class="docutils literal notranslate"><span class="pre">Initialize</span></code> to initialize the execution environment for AMReX, and <code class="docutils literal notranslate"><span class="pre">Finalize</span></code> needs
+to be paired with Initialize to free the resources used by AMReX. Because many AMReX classes and functions don’t work
+properly after amrex::Finalize is called, it’s best to put the code between amrex::Initialize and amrex::Finalize in its
+scope to make sure that resources are freed properly”<a class="footnote-reference brackets" href="#id37" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: &#39;root/src/main.cpp&#39;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="cm">/*i_argc*/</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">i_argv</span><span class="p">[]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<span class="hll"><span class="w">    </span><span class="n">amrex</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="parmparse">
+<h3>ParmParse<a class="headerlink" href="#parmparse" title="Link to this heading"></a></h3>
+<p>Before starting a simulation, the user must define its configuration. To simplify this process, you only need to adjust
+the parameters in the <code class="docutils literal notranslate"><span class="pre">root/resources/inputs.amrex</span></code> file.  “We use the AMReX class <code class="docutils literal notranslate"><span class="pre">AMReX_ParmParse.H</span></code>, which
+provides a database for storing and retrieving command line and input file arguments”<a class="footnote-reference brackets" href="#id38" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>. This technique is used
+throughout the project to get the correct parameters when they are needed. Here is an example of how to get the
+displacement and bathymetry file paths:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: &#39;root/src/main.cpp&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="n">amrex</span><span class="o">::</span><span class="n">ParmParse</span><span class="w"> </span><span class="n">ppTsunami</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;tsunami&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">bathymetryFile</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">displacementFile</span><span class="p">;</span>
+<span class="n">ppTsunami</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;bathymetry_file&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetryFile</span><span class="w"> </span><span class="p">);</span>
+<span class="n">ppTsunami</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;displacement_file&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displacementFile</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The setup and preparation process of the simulation starts by initializing our <code class="docutils literal notranslate"><span class="pre">AMRCoreWavePropagation2d</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: &#39;root/src/main.cpp&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">amr</span><span class="o">::</span><span class="n">AMRCoreWavePropagation2d</span><span class="o">*</span><span class="w"> </span><span class="n">waveProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">amr</span><span class="o">::</span><span class="n">AMRCoreWavePropagation2d</span><span class="p">(</span><span class="w"> </span><span class="n">setup</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="initfromscratch">
+<h3>InitFromScratch<a class="headerlink" href="#initfromscratch" title="Link to this heading"></a></h3>
+<p>The constructor invokes the <code class="docutils literal notranslate"><span class="pre">ReadParameters</span></code> function to obtain the input file parameters and resizes them to the
+maximum level, <code class="docutils literal notranslate"><span class="pre">nLevelMax</span></code>. Therefore, if we declare parameters in our <code class="docutils literal notranslate"><span class="pre">inputs.amerx</span></code> file for levels one to five,
+but only have a maximum of three levels, we will only require the first three entries in the vectors. We then set the
+refinement ratio for each level and fill our boundaries. To initialize our data, we pass the
+start time, which is still zero, to <code class="docutils literal notranslate"><span class="pre">InitFromScratch</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;AMRCoreWavePropagation2d&#39;</span>
+
+<span class="hll"><span class="n">ReadParameters</span><span class="p">();</span>
+</span><span class="hll"><span class="c1">//resize to the levels</span>
+</span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// set the refinement ratio for each level for subcycling</span>
+<span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">max_level</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">lev</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">nSubSteps</span><span class="p">[</span><span class="n">lev</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaxRefRatio</span><span class="p">(</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// set the interpolation method</span>
+<span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">dim</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">AMREX_SPACEDIM</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">dim</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nComponents</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">n</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">physicalBoundary</span><span class="p">[</span><span class="n">n</span><span class="p">].</span><span class="n">setLo</span><span class="p">(</span><span class="w"> </span><span class="n">dim</span><span class="p">,</span><span class="w"> </span><span class="n">BCType</span><span class="o">::</span><span class="n">foextrap</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">physicalBoundary</span><span class="p">[</span><span class="n">n</span><span class="p">].</span><span class="n">setHi</span><span class="p">(</span><span class="w"> </span><span class="n">dim</span><span class="p">,</span><span class="w"> </span><span class="n">BCType</span><span class="o">::</span><span class="n">foextrap</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// init the domain</span>
+<span class="hll"><span class="n">InitFromScratch</span><span class="p">(</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">);</span>
+</span></pre></div>
+</div>
+<p>This initializes <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code>, <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> and data from scratch. Calling this function requires the derived class
+implement its own <code class="docutils literal notranslate"><span class="pre">MakeNewLevelFromScratch</span></code> (root/src/amr/AMRCoreWavePropagation2d.cpp) to allocate and initialize data.
+This method makes a new level from scratch using provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code> and then calls
+<code class="docutils literal notranslate"><span class="pre">InitData</span></code> to initialize our data structures.</p>
+</section>
+<section id="initdata">
+<h3>InitData<a class="headerlink" href="#initdata" title="Link to this heading"></a></h3>
+<p id="id16">The data from the setup is read into the grid by <code class="docutils literal notranslate"><span class="pre">InitData</span></code>. To accomplish this, we will now provide a detailed
+explanation of how to loop over the grid and access its cells. Working with AMReX will require this as a prerequisite.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="linenos"> 2</span><span class="c1">/// Function: &#39;InitData&#39;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="linenos"> 5</span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">MFIter</span><span class="w"> </span><span class="n">mfi</span><span class="p">(</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">isValid</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">mfi</span><span class="w"> </span><span class="p">)</span>
+</span><span class="linenos"> 6</span><span class="p">{</span>
+<span class="linenos"> 7</span><span class="w">    </span><span class="n">Box</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">validbox</span><span class="p">();</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">10</span><span class="w">    </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_X</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">11</span><span class="w">    </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_Y</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">12</span><span class="w">    </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bathymetry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">BATHYMERTRY</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="w">    </span><span class="n">ParallelFor</span><span class="p">(</span><span class="w"> </span><span class="n">bx</span><span class="p">,</span>
+<span class="linenos">15</span><span class="w">                </span><span class="p">[</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="n">AMREX_GPU_DEVICE</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span>
+<span class="linenos">16</span><span class="w">    </span><span class="p">{</span>
+<span class="linenos">17</span><span class="w">        </span><span class="n">Real</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dx</span><span class="p">;</span>
+<span class="linenos">18</span><span class="w">        </span><span class="n">Real</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dy</span><span class="p">;</span>
+<span class="hll"><span class="linenos">19</span><span class="w">        </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setup</span><span class="o">-&gt;</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="linenos">20</span><span class="w">        </span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setup</span><span class="o">-&gt;</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+</span><span class="linenos">21</span><span class="w">        </span><span class="n">momentumY</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setup</span><span class="o">-&gt;</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">22</span><span class="w">        </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setup</span><span class="o">-&gt;</span><span class="n">getBathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">23</span><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+<span class="linenos">24</span><span class="p">}</span>
+<span class="linenos">25</span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>“Above we see how you can operate on the <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> data with your own functions. <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> provides an iterator, <code class="docutils literal notranslate"><span class="pre">MFIter</span></code>
+for looping over the <code class="docutils literal notranslate"><span class="pre">FArrayBoxes</span></code> in <code class="docutils literal notranslate"><span class="pre">MultiFabs</span></code>. MFIter only loops over grids owned by this process.”<a class="footnote-reference brackets" href="#id39" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
+<code class="docutils literal notranslate"><span class="pre">Tiling</span></code> is not being used in this <code class="docutils literal notranslate"><span class="pre">MFiter</span></code> loop because it was set to false in line five. <code class="docutils literal notranslate"><span class="pre">Tiling</span></code> improves data
+locality when loading data that is not directly consecutive in memory. One way to achieve this is by transforming loops into tiling loops that iterate over tiles and element loops
+that iterate over the data elements within a tile. We use tiling only where it makes sense. For example, it improves our
+<code class="docutils literal notranslate"><span class="pre">ySweep</span></code> but not our <code class="docutils literal notranslate"><span class="pre">xSweep</span></code>, which will be introduced later.</p>
+<ol class="arabic simple">
+<li><p>Passing <code class="docutils literal notranslate"><span class="pre">true</span></code> when defining <code class="docutils literal notranslate"><span class="pre">MFIter</span></code> to indicate tiling.</p></li>
+<li><p>Calling <code class="docutils literal notranslate"><span class="pre">tilebox</span></code> instead of <code class="docutils literal notranslate"><span class="pre">validbox</span></code> to obtain the tiled work region for the loop iteration.</p></li>
+</ol>
+<p>To simplify data management, we create an <code class="docutils literal notranslate"><span class="pre">Array4</span></code> for each component that holds its specific values.
+Currently, we are only iterating over the <code class="docutils literal notranslate"><span class="pre">Boxes</span></code> of our <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code>. In order to iterate over the cells,
+we will use <code class="docutils literal notranslate"><span class="pre">ParallelFor</span></code>. “<code class="docutils literal notranslate"><span class="pre">ParallelFor</span></code> takes two arguments. The first argument is a <code class="docutils literal notranslate"><span class="pre">Box</span></code> specifying the
+iteration index space, and the second argument is a C++ lambda function that works on cell (i, j, k).”<a class="footnote-reference brackets" href="#id40" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p>
+</section>
+<section id="evolve">
+<h3>Evolve<a class="headerlink" href="#evolve" title="Link to this heading"></a></h3>
+<p>We have completed the setup of our simulation and returned to our <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code>. Let’s jump into
+<code class="docutils literal notranslate"><span class="pre">AMRCoreWavePropagation2d.cpp</span></code> where the real simulation is done. Our starting point is</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: &#39;root/src/main.cpp&#39;</span>
+
+<span class="n">waveProp</span><span class="o">-&gt;</span><span class="n">Evolve</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="writeplotfile">
+<h3>WritePlotFile<a class="headerlink" href="#writeplotfile" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Evolve</span></code> method progresses through time step by step using a loop. The program determines independently whether to
+generate a plot file at the start. We call <code class="docutils literal notranslate"><span class="pre">WritePlotFile</span></code> to write a simulation step.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;Evolve&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">currentTime</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">writes</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">writeFrequency</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">writes</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="n">WritePlotFile</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The tsunami-specific values ‘Height’, ‘MomentumX’, ‘MomentumY’, ‘Bathymetry’, and ‘Error’ are defined in WritePlotFile
+and are intended to be saved in the plot. We call the provided function <code class="docutils literal notranslate"><span class="pre">WriteMultiLevelPlotfile</span></code> to create the actual
+plot. “AMReX has its own native plotfile format. Many visualization tools are available for AMReX plotfiles”<a class="footnote-reference brackets" href="#id41" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.
+We used <strong>ParaView</strong> to visualize the plot files with confidence. If you want to get more information about this we
+recommend the chapter <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Visualization.html#paraview">Visualization</a>.</p>
+</section>
+<section id="timestepwithsubcycling">
+<h3>timeStepWithSubcycling<a class="headerlink" href="#timestepwithsubcycling" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">timeStepWithSubcycling</span></code> advances a level by dt, includes a recursive call for finer levels. First of all we check
+if we want to regrid. To regrid, three conditions must be met. The current level must be lower than the maximum
+refinement level <code class="docutils literal notranslate"><span class="pre">max_level</span></code>. Then we have to be sure that we don’t regrid fine levels again if it was taken care of
+during a coarse regird. Additionally, we need to check if it is time to regrid based on the <code class="docutils literal notranslate"><span class="pre">regridFrequency</span></code> variable,
+which defines the number of time steps between each regrid.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;timeStepWithSubcycling&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_level</span>
+</span><span class="hll"><span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">step</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lastRegridStep</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+</span><span class="hll"><span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">step</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">regridFrequency</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// regrid could add newly refine levels (if finest_level &lt; max_level)</span>
+<span class="w">    </span><span class="c1">// so we save the previous finest level index</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">oldFinest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">finest_level</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="n">regrid</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="c1">// mark that we have regridded this level already</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">level</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">finest_level</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">k</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lastRegridStep</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">step</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// if there are newly created levels, set the time step</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oldFinest</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">finest_level</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">k</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">dt</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">MaxRefRatio</span><span class="p">(</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If regridding is necessary, we use the internal method <code class="docutils literal notranslate"><span class="pre">regrid</span></code>. <code class="docutils literal notranslate"><span class="pre">MakeNewGrids</span></code> will be invoked by this method,
+which will use <code class="docutils literal notranslate"><span class="pre">ErrorEst</span></code> to tag the cells for regridding. Afterwards, <code class="docutils literal notranslate"><span class="pre">RemakeLevel</span></code> is called to remake an existing
+level using the provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>, and fill it with existing fine and coarse data.
+Then, <code class="docutils literal notranslate"><span class="pre">MakeNewLevelFromCoarse</span></code> is called to create a new level using the provided <code class="docutils literal notranslate"><span class="pre">BoxArray</span></code> and
+<code class="docutils literal notranslate"><span class="pre">DistributionMapping</span></code>, and fill it with interpolated coarse level data. At this point, a new refinement level is
+created. <code class="docutils literal notranslate"><span class="pre">ClearLevel</span></code> is then used to delete level data at the end.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/submodules/amrex/Src/AmrCore/AMReX_AmrCore.cpp&#39;</span>
+<span class="c1">/// Function: &#39;regrid&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">AmrCore::regrid</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">lbase</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lbase</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">max_level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">new_finest</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">BoxArray</span><span class="o">&gt;</span><span class="w"> </span><span class="n">new_grids</span><span class="p">(</span><span class="n">finest_level</span><span class="o">+</span><span class="mi">2</span><span class="p">);</span>
+<span class="hll"><span class="w">    </span><span class="n">MakeNewGrids</span><span class="p">(</span><span class="n">lbase</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">new_finest</span><span class="p">,</span><span class="w"> </span><span class="n">new_grids</span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">BL_ASSERT</span><span class="p">(</span><span class="n">new_finest</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">finest_level</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">coarse_ba_changed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lbase</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">new_finest</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">lev</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lev</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">finest_level</span><span class="p">)</span><span class="w"> </span><span class="c1">// an old level</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">bool</span><span class="w"> </span><span class="n">ba_changed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">new_grids</span><span class="p">[</span><span class="n">lev</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">grids</span><span class="p">[</span><span class="n">lev</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ba_changed</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">coarse_ba_changed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">BoxArray</span><span class="w"> </span><span class="n">level_grids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grids</span><span class="p">[</span><span class="n">lev</span><span class="p">];</span>
+<span class="w">                </span><span class="n">DistributionMapping</span><span class="w"> </span><span class="n">level_dmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dmap</span><span class="p">[</span><span class="n">lev</span><span class="p">];</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ba_changed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">level_grids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_grids</span><span class="p">[</span><span class="n">lev</span><span class="p">];</span>
+<span class="w">                    </span><span class="n">level_dmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MakeDistributionMap</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">level_grids</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">old_num_setdm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_setdm</span><span class="p">;</span>
+<span class="hll"><span class="w">                </span><span class="n">RemakeLevel</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">level_grids</span><span class="p">,</span><span class="w"> </span><span class="n">level_dmap</span><span class="p">);</span>
+</span><span class="w">                </span><span class="n">SetBoxArray</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">level_grids</span><span class="p">);</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">old_num_setdm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">num_setdm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">SetDistributionMap</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">level_dmap</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">coarse_ba_changed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ba_changed</span><span class="p">;;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span><span class="w">  </span><span class="c1">// a new level</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">DistributionMapping</span><span class="w"> </span><span class="n">new_dmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MakeDistributionMap</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">new_grids</span><span class="p">[</span><span class="n">lev</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">old_num_setdm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_setdm</span><span class="p">;</span>
+<span class="hll"><span class="w">            </span><span class="n">MakeNewLevelFromCoarse</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">new_grids</span><span class="p">[</span><span class="n">lev</span><span class="p">],</span><span class="w"> </span><span class="n">new_dmap</span><span class="p">);</span>
+</span><span class="w">            </span><span class="n">SetBoxArray</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">new_grids</span><span class="p">[</span><span class="n">lev</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">old_num_setdm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">num_setdm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">SetDistributionMap</span><span class="p">(</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="n">new_dmap</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_finest</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">lev</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">finest_level</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">lev</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">ClearLevel</span><span class="p">(</span><span class="n">lev</span><span class="p">);</span>
+</span><span class="w">        </span><span class="n">ClearBoxArray</span><span class="p">(</span><span class="n">lev</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ClearDistributionMap</span><span class="p">(</span><span class="n">lev</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">finest_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_finest</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Since we already introduced most of these functions at the <a class="reference internal" href="#meshandcore"><span class="std std-ref">beginning of this chapter</span></a>, we will
+not provide a detailed explanation of them here. Furthermore, <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> aims to implement these functions to ensure
+compatibility with the framework. The above code provides an example of how the framework works using these methods.</p>
+<p>After regridding, we advance one level for one time step by calling <code class="docutils literal notranslate"><span class="pre">AdvanceGridAtLevel</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;timeStepWithSubcycling&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="n">AdvanceGridAtLevel</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">iteration</span><span class="p">,</span><span class="w"> </span><span class="n">nSubSteps</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Before we go into this method, let us look at the last part of <code class="docutils literal notranslate"><span class="pre">timeStepWithSubcycling</span></code>. As the name suggests, we also
+aim to progress through time on a smaller scale. To achieve this, we use the recursive procedure.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;timeStepWithSubcycling&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">finest_level</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// recursive call for next-finer level</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">nSubSteps</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="n">timeStepWithSubcycling</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dt</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// update level based on coarse-fine flux mismatch</span>
+<span class="hll"><span class="w">    </span><span class="n">AverageDownTo</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// average level+1 down to level</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>As we can see, we are calling the subroutines and then using <code class="docutils literal notranslate"><span class="pre">AverageDownTo</span></code> to average down across multiple levels.
+We defined this method ourselves to limit the arguments of the <code class="docutils literal notranslate"><span class="pre">average_down</span></code> method provided by <code class="docutils literal notranslate"><span class="pre">AMReX</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;AverageDownTo&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::amr::AMRCoreWavePropagation2d::AverageDownTo</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">coarseLevel</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Average down the first 3 Components: Height, MomentumX, MomentumY</span>
+<span class="hll"><span class="w">    </span><span class="n">average_down</span><span class="p">(</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">coarseLevel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">coarseLevel</span><span class="p">],</span>
+</span><span class="hll"><span class="w">                  </span><span class="n">geom</span><span class="p">[</span><span class="n">coarseLevel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">coarseLevel</span><span class="p">],</span>
+</span><span class="hll"><span class="w">                  </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">refRatio</span><span class="p">(</span><span class="w"> </span><span class="n">coarseLevel</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="advancegridatlevel">
+<h3>AdvanceGridAtLevel<a class="headerlink" href="#advancegridatlevel" title="Link to this heading"></a></h3>
+<p>Let’s revisit <code class="docutils literal notranslate"><span class="pre">AdvanceGridAtLevel</span></code> and examine it more closely. This is the method to advance the grid by one level
+for one time step. Before performing the x and y sweep, it is necessary to call <code class="docutils literal notranslate"><span class="pre">FillPatch</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;AdvanceGridAtLevel&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// swapping the grid to keep the current time step in gridOld</span>
+<span class="c1">// and advance with the MultiFab in gridNew</span>
+<span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="w"> </span><span class="n">gridOld</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+
+<span class="n">MultiFab</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNew</span><span class="p">[</span><span class="n">level</span><span class="p">];</span>
+
+<span class="c1">// size in x &amp; y direction</span>
+<span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">CellSize</span><span class="p">(</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">].</span><span class="n">CellSize</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+
+<span class="c1">// scaling in each dimension</span>
+<span class="n">Real</span><span class="w"> </span><span class="n">dtdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtLevel</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dx</span><span class="p">;</span>
+<span class="n">Real</span><span class="w"> </span><span class="n">dtdy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtLevel</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dy</span><span class="p">;</span>
+
+<span class="c1">// State with ghost cells</span>
+<span class="hll"><span class="n">MultiFab</span><span class="w"> </span><span class="nf">stateTemp</span><span class="p">(</span><span class="w"> </span><span class="n">grids</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">dmap</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="n">FillPatch</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">stateTemp</span><span class="w"> </span><span class="p">);</span>
+</span><span class="n">state</span><span class="p">.</span><span class="n">ParallelCopy</span><span class="p">(</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="p">,</span><span class="w"> </span><span class="n">nGhostRow</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">AdvanceGridAtLevel</span></code>, we create a temporary <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> called <code class="docutils literal notranslate"><span class="pre">stateTemp</span></code>, which is essentially our grid but
+with ghost cells filled in. The valid and ghost cells are filled in from actual valid data at that level, space-time
+interpolated data from the next-coarser level, neighboring grids at the same level, or domain boundary conditions.</p>
+<p><strong>FillPatch</strong></p>
+<p>This method is needed to fill a patch with data. The code includes two functions: <code class="docutils literal notranslate"><span class="pre">FillPatchSingleLevel</span></code> and
+<code class="docutils literal notranslate"><span class="pre">FillPatchTwoLevels</span></code>. To enable this, we must first use our utility function, <cite>GetData</cite>.  This method copies data from
+gridOld and/or gridNew into another <cite>MultiFab</cite> for further use.</p>
+<ol class="arabic simple">
+<li><p>“<code class="docutils literal notranslate"><span class="pre">FillPatchSingleLevel</span></code> fills a <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> and its ghost region at a single level of refinement. The routine is flexible enough to interpolate in time between two <code class="docutils literal notranslate"><span class="pre">MultiFabs</span></code> associated with different times.”<a class="footnote-reference brackets" href="#id42" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<li><p>“<code class="docutils literal notranslate"><span class="pre">FillPatchTwoLevels</span></code> fills a <code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> and its ghost region at a single level of refinement, assuming there is an underlying coarse level. This routine is flexible enough to interpolate the coarser level in time first using <code class="docutils literal notranslate"><span class="pre">FillPatchSingleLevel</span></code>.”<a class="footnote-reference brackets" href="#id42" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+</ol>
+<p>“Note that <code class="docutils literal notranslate"><span class="pre">FillPatchSingleLevel</span></code> and <code class="docutils literal notranslate"><span class="pre">FillPatchTwoLevels</span></code> call the single-level routines <code class="docutils literal notranslate"><span class="pre">MultiFab::FillBoundary</span></code>
+and <code class="docutils literal notranslate"><span class="pre">FillDomainBoundary</span></code> to fill interior, periodic, and physical boundary ghost cells.”<a class="footnote-reference brackets" href="#id42" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;FillPatch&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">MultiFab</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">smf</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stime</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="n">GetData</span><span class="p">(</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">smf</span><span class="p">,</span><span class="w"> </span><span class="n">stime</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">CpuBndryFuncFab</span><span class="w"> </span><span class="nf">bndry_func</span><span class="p">(</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="p">);</span><span class="w">  </span><span class="c1">// Without EXT_DIR, we can pass a nullptr.</span>
+<span class="w">    </span><span class="n">PhysBCFunct</span><span class="o">&lt;</span><span class="n">CpuBndryFuncFab</span><span class="o">&gt;</span><span class="w"> </span><span class="n">physbc</span><span class="p">(</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="n">bndry_func</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// decomp is the starting component of the destination. Therefore scomp = dcomp</span>
+<span class="hll"><span class="w">    </span><span class="n">FillPatchSingleLevel</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">smf</span><span class="p">,</span><span class="w"> </span><span class="n">stime</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+</span><span class="w">                          </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">physbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">MultiFab</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">cmf</span><span class="p">,</span><span class="w"> </span><span class="n">fmf</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">Real</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ctime</span><span class="p">,</span><span class="w"> </span><span class="n">ftime</span><span class="p">;</span>
+<span class="w">    </span><span class="n">GetData</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">cmf</span><span class="p">,</span><span class="w"> </span><span class="n">ctime</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">GetData</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">fmf</span><span class="p">,</span><span class="w"> </span><span class="n">ftime</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">CpuBndryFuncFab</span><span class="w"> </span><span class="nf">bndry_func</span><span class="p">(</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="p">);</span><span class="w">  </span><span class="c1">// Without EXT_DIR, we can pass a nullptr.</span>
+<span class="w">    </span><span class="n">PhysBCFunct</span><span class="o">&lt;</span><span class="n">CpuBndryFuncFab</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cphysbc</span><span class="p">(</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="n">bndry_func</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">PhysBCFunct</span><span class="o">&lt;</span><span class="n">CpuBndryFuncFab</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fphysbc</span><span class="p">(</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="n">bndry_func</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// decomp is the starting component of the destination. Therefore scomp = dcomp</span>
+<span class="hll"><span class="w">    </span><span class="n">FillPatchTwoLevels</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">cmf</span><span class="p">,</span><span class="w"> </span><span class="n">ctime</span><span class="p">,</span><span class="w"> </span><span class="n">fmf</span><span class="p">,</span><span class="w"> </span><span class="n">ftime</span><span class="p">,</span>
+</span><span class="w">                        </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">cphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">fphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">refRatio</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                        </span><span class="n">interpolator</span><span class="p">,</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// do a piecewise constant interpolation to fill cell near the shore i.e. |bathymetry| &lt; bathymetryMinValue</span>
+<span class="w">    </span><span class="n">MultiFab</span><span class="w"> </span><span class="nf">tmf</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">boxArray</span><span class="p">(),</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">DistributionMap</span><span class="p">(),</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">mf</span><span class="p">.</span><span class="n">nGrow</span><span class="p">()</span><span class="w"> </span><span class="p">);</span>
+<span class="hll"><span class="w">    </span><span class="n">FillPatchTwoLevels</span><span class="p">(</span><span class="w"> </span><span class="n">tmf</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">cmf</span><span class="p">,</span><span class="w"> </span><span class="n">ctime</span><span class="p">,</span><span class="w"> </span><span class="n">fmf</span><span class="p">,</span><span class="w"> </span><span class="n">ftime</span><span class="p">,</span>
+</span><span class="w">                        </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">geom</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">cphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">fphysbc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">refRatio</span><span class="p">(</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                        </span><span class="o">&amp;</span><span class="n">pc_interp</span><span class="p">,</span><span class="w"> </span><span class="n">physicalBoundary</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FixFinePatch</span><span class="p">(</span><span class="w"> </span><span class="n">mf</span><span class="p">,</span><span class="w"> </span><span class="n">tmf</span><span class="w"> </span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The second instance of <code class="docutils literal notranslate"><span class="pre">FillPatchTwoLevels</span></code> is required to fill cells near the coast and prevent the dry-wet problem.
+This is necessary because our simulation is not capable of handling this issue. The last line <code class="docutils literal notranslate"><span class="pre">FixFinePatch</span></code> fixes the
+<code class="docutils literal notranslate"><span class="pre">MultiFab</span></code> interpolation from the coarser level. This is relevant when the fine level is created or updated. It
+replaces the values of <code class="docutils literal notranslate"><span class="pre">mf</span></code> with <code class="docutils literal notranslate"><span class="pre">const_mf</span></code> for the cell near the shore where |bathymetry| &lt; <code class="docutils literal notranslate"><span class="pre">bathymetryMinValue</span></code>
+and set the height on the coast to zero. To prevent the issue of dry-wet, this is also necessary.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">FillPatch</span></code> uses an <code class="docutils literal notranslate"><span class="pre">Interpolator</span></code>. This is largely hidden from application codes. <code class="docutils literal notranslate"><span class="pre">AMReX_Interpolater.cpp/H</span></code>
+contains the virtual base class <code class="docutils literal notranslate"><span class="pre">Interpolater</span></code>, which provides an interface for coarse-to-fine spatial interpolation
+operators. The fillpatch routines described above require an <code class="docutils literal notranslate"><span class="pre">Interpolater</span></code> for <code class="docutils literal notranslate"><span class="pre">FillPatchTwoLevels</span></code>. In addition
+to the special case, we are using the <code class="docutils literal notranslate"><span class="pre">amrex::lincc_interp</span></code> interpolator.</p>
+<p><strong>CellConservativeLinear lincc_interp</strong></p>
+<p>“Dimension-by-dimension linear interpolation with <a class="reference external" href="https://en.wikipedia.org/wiki/Flux_limiter">MC limiter</a> for
+cell-centered data. For multi-component data, the strictest limiter is used for all components. For example,
+if one component after its own limiting has a slope of zero, all other components will have zero slopes as well
+eventually. The interpolation is conservative in finite-volume sense for both Cartesian and curvilinear coordinates.”<a class="footnote-reference brackets" href="#id43" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p>
+<p>Back in <cite>AdvanceGridAtLevel</cite> we finally do the x and y sweep of the cells.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/src/amr/AMRCoreWavePropagation2d.cpp&#39;</span>
+<span class="c1">/// Function: &#39;AdvanceGridAtLevel&#39;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="cp">#ifdef AMREX_USE_OMP</span>
+<span class="cp">#pragma omp parallel</span>
+<span class="cp">#endif</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">MFIter</span><span class="w"> </span><span class="n">mfi</span><span class="p">(</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">isValid</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">mfi</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// ===== UPDATE X SWEEP =====</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Box</span><span class="o">&amp;</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">validbox</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// define the grid components</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_X</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bathymetry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">BATHYMERTRY</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w">      </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gridOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// compute the x-sweep</span>
+<span class="w">        </span><span class="n">launch</span><span class="p">(</span><span class="w"> </span><span class="n">grow</span><span class="p">(</span><span class="w"> </span><span class="n">bx</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                </span><span class="p">[</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="n">AMREX_GPU_DEVICE</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Box</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">tbx</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="hll"><span class="w">            </span><span class="n">xSweep</span><span class="p">(</span><span class="w"> </span><span class="n">tbx</span><span class="p">,</span><span class="w"> </span><span class="n">dtdx</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span><span class="w"> </span><span class="n">gridOut</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">state</span><span class="p">.</span><span class="n">ParallelCopy</span><span class="p">(</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">state</span><span class="p">.</span><span class="n">FillBoundary</span><span class="p">();</span>
+
+<span class="cp">#ifdef AMREX_USE_OMP</span>
+<span class="cp">#pragma omp parallel</span>
+<span class="cp">#endif</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">MFIter</span><span class="w"> </span><span class="n">mfi</span><span class="p">(</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">isValid</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">mfi</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// ===== UPDATE Y SWEEP =====</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Box</span><span class="o">&amp;</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfi</span><span class="p">.</span><span class="n">tilebox</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// swap the grid components</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">momentumY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">MOMENTUM_Y</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w"> </span><span class="k">const</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bathymetry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stateTemp</span><span class="p">.</span><span class="n">const_array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="p">,</span><span class="w"> </span><span class="n">BATHYMERTRY</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">Array4</span><span class="o">&lt;</span><span class="n">Real</span><span class="w">      </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gridOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="w"> </span><span class="n">mfi</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// compute the y-sweep</span>
+<span class="w">        </span><span class="n">launch</span><span class="p">(</span><span class="w"> </span><span class="n">grow</span><span class="p">(</span><span class="w"> </span><span class="n">bx</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">),</span>
+<span class="w">                </span><span class="p">[</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="n">AMREX_GPU_DEVICE</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Box</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">tbx</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="hll"><span class="w">            </span><span class="n">ySweep</span><span class="p">(</span><span class="w"> </span><span class="n">tbx</span><span class="p">,</span><span class="w"> </span><span class="n">dtdy</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">momentumY</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span><span class="w"> </span><span class="n">gridOut</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">xSweep</span></code> and <code class="docutils literal notranslate"><span class="pre">ySweep</span></code> are kernel methods declared in <code class="docutils literal notranslate"><span class="pre">root/include/amr/Kernels.h</span></code>. Both are very similar. We first
+calculate the reflection and then compute the net-updates using our <code class="docutils literal notranslate"><span class="pre">F-Wave</span> <span class="pre">solver</span></code> to update the grid cells. Below is
+the procedure for <code class="docutils literal notranslate"><span class="pre">xSweep</span></code>, which is analogous to <code class="docutils literal notranslate"><span class="pre">ySweep</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:     &#39;root/include/amr/Kernels.h&#39;</span>
+<span class="c1">/// Function: &#39;xSweep&#39;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">xSweep</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lo</span><span class="p">.</span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">hi</span><span class="p">.</span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">AMREX_PRAGMA_SIMD</span>
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lo</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">hi</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// noting to compute both shore cells</span>
+<span class="hll"><span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">(</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">(</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">                </span><span class="p">}</span>
+
+<span class="hll"><span class="w">                </span><span class="c1">// calculate the reflection</span>
+</span><span class="w">                </span><span class="kt">bool</span><span class="w"> </span><span class="n">leftReflection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">(</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">heightRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">leftReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">momentumRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">leftReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">-</span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">bathymetryRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">leftReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="kt">bool</span><span class="w"> </span><span class="n">rightReflection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">(</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">heightLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rightReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">momentumLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rightReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">-</span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">momentumX</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">bathymetryLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rightReflection</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="hll"><span class="w">                </span><span class="c1">// compute net-updates</span>
+</span><span class="hll"><span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">netUpdates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span>
+</span><span class="hll"><span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="hll"><span class="w">                </span><span class="n">gridOut</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Component</span><span class="o">::</span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">rightReflection</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="n">gridOut</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Component</span><span class="o">::</span><span class="n">MOMENTUM_X</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">rightReflection</span><span class="p">;</span>
+</span>
+<span class="hll"><span class="w">                </span><span class="n">gridOut</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Component</span><span class="o">::</span><span class="n">HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">leftReflection</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="n">gridOut</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Component</span><span class="o">::</span><span class="n">MOMENTUM_X</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">leftReflection</span><span class="p">;</span>
+</span><span class="w">            </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>After completing the sweeps and finishing <code class="docutils literal notranslate"><span class="pre">AverageDownTo</span></code>, we have performed a cycle successfully. We now return to the
+<code class="docutils literal notranslate"><span class="pre">Evolve</span></code> method to check if the current time is less than the time to simulate. If it is, we execute the next
+<code class="docutils literal notranslate"><span class="pre">timeStepWithSubcycling</span></code>. If not, the simulation is complete.</p>
+<p>We hope this code walkthrough was helpful in understanding the behavior and functionality of our adaptive mesh
+refinement tsunami simulation. We covered all the methods we defined in <code class="docutils literal notranslate"><span class="pre">AMRCoreWavePropagation2d</span></code>. Of course, we use
+functions of the <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> framework. These are internal and could be used by us without modification. If you want to
+learn more about <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> and the functions it provides, we recommend you read the
+<a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/">source documentation</a> and the
+<a class="reference external" href="https://amrex-codes.github.io/amrex/tutorials_html/">tutorial documentation</a>.</p>
+<p>But enough theory. Adaptive mesh refinement has two main goals that go hand in hand. We want to increase the accuracy
+of our simulation while maintaining good runtime performance. In the next two chapters we will test our program and
+take a closer look at the results and whether we have achieved the expected behavior.</p>
+</section>
+</section>
+<section id="performance">
+<h2>11.4 Performance<a class="headerlink" href="#performance" title="Link to this heading"></a></h2>
+<section id="load-balancing">
+<h3>Load Balancing<a class="headerlink" href="#load-balancing" title="Link to this heading"></a></h3>
+<p>“Single-level load balancing algorithms are sequentially applied to each AMR level independently, and the resulting distributions are mapped onto the ranks taking into account the weights already assigned to them (assign heaviest set of grids to the least loaded rank).
+Note that the load of each process is measured by how much memory has already been allocated, not how much memory will be allocated.”<a class="footnote-reference brackets" href="#id44" id="id24" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">AMReX</span></code> provides three load balancing algorithms: Knapsack, SFC and Round-robin.</p>
+<p>We kept the default algorithm SFC which “enumerate grids with a space-filling Z-morton curve, then partition the resulting ordering across ranks in a way that balances the load.”<a class="footnote-reference brackets" href="#id44" id="id25" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p>
+</section>
+<section id="benchmarks">
+<h3>Benchmarks<a class="headerlink" href="#benchmarks" title="Link to this heading"></a></h3>
+<p>This benchmark uses the Tohoku tsunami setup with 1000 m cells, writing every 60 seconds of simulation time.
+<code class="docutils literal notranslate"><span class="pre">Original</span></code> is our last release that does not include <code class="docutils literal notranslate"><span class="pre">AMReX</span></code>, see
+<a class="reference external" href="https://github.com/RivinHD/Tsunami-Simulation/releases/tag/9-Parallelization">Submission 9. Parallelization</a>.
+This <a class="reference download internal" download="" href="../_downloads/986b0b8b779a570fbc4143e419a120f3/inputs.amrex"><code class="xref download docutils literal notranslate"><span class="pre">inputs.amrex</span></code></a> configuration file was used for the AMR simulation with <code class="docutils literal notranslate"><span class="pre">AMReX</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p><span class="raw-html"><center>Original</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>1 Level</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>2 Levels</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>3 Levels</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>4 Levels</center></span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>I/0 Enabled</p></td>
+<td><p>2 min 31 sec</p></td>
+<td><p>2 min 21 sec</p></td>
+<td><p>9 min 20 sec</p></td>
+<td><p>23 min 29 sec</p></td>
+<td><p>46 min 20 sec</p></td>
+</tr>
+<tr class="row-odd"><td><p>I/0 Disabled</p></td>
+<td><p>1 min 34 sec</p></td>
+<td><p>1 min 48 sec</p></td>
+<td><p>8 min 43 sec</p></td>
+<td><p>22 min 31 sec</p></td>
+<td><p>45 min 11 sec</p></td>
+</tr>
+</tbody>
+</table>
+<p>The levels are designated as follows: 1 level is the coarse level only, 2 levels has the coarse level and one additional
+fine level, 3 levels has the coarse level and two additional fine levels and so on. From one fine level to another, the
+cells are divided in half, i.e. one 1000 m cell becomes four 500 m cells. The levels therefore have the following sizes:
+Level 1 with 1000 m, Level 2 with 500 m, Level 3 with 250 m and Level 4 with 125 m.</p>
+<p>The comparison of <code class="docutils literal notranslate"><span class="pre">Original</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Level</span></code> shows that the AMR implementation requires more computation for the
+simulation itself. However, using the <code class="docutils literal notranslate"><span class="pre">AMReX</span></code> output format is faster than using the netCdf writer.</p>
+<p>We also used the <code class="docutils literal notranslate"><span class="pre">Original</span></code> program to run on 250 m cells with I/O, which took <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">h</span> <span class="pre">47</span> <span class="pre">min</span> <span class="pre">13</span> <span class="pre">sec</span></code> compared to
+<code class="docutils literal notranslate"><span class="pre">3</span> <span class="pre">Levels</span></code> which took only <code class="docutils literal notranslate"><span class="pre">23</span> <span class="pre">min</span> <span class="pre">29</span> <span class="pre">sec</span></code>. Using AMR to only partially refine the mesh we get a significant
+performance increase with a speedup of <code class="docutils literal notranslate"><span class="pre">4.76</span></code>.</p>
+</section>
+</section>
+<section id="id26">
+<h2>11.5 Visualization<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
+<section id="accuracy">
+<h3>Accuracy<a class="headerlink" href="#accuracy" title="Link to this heading"></a></h3>
+<p>We check the wave height to visually compare the increase in accuracy per level. We plotted the <strong>water level</strong> of two
+stations, marked with a cross in the image below.</p>
+<img alt="../_images/StationsPositions.png" src="../_images/StationsPositions.png" />
+<p>The stations are plotted over time using the output data from the benchmark. <strong>Station 1</strong> is the marker close to shore
+and <strong>Station 2</strong> is the marker to the right of the displaced wave.</p>
+<p><strong>Station 1</strong></p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAll" for="sd-tab-item-0">
+All</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station1_all.png" src="../_images/Station1_all.png" />
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR" for="sd-tab-item-1">
+AMR</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station1_amr.png" src="../_images/Station1_amr.png" />
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR1Original" for="sd-tab-item-2">
+AMR 1 Level &amp; Original</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station1_amr0_original.png" src="../_images/Station1_amr0_original.png" />
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR14" for="sd-tab-item-3">
+AMR 1 &amp; 4 Levels</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station1_amr_0_3.png" src="../_images/Station1_amr_0_3.png" />
+</div>
+</div>
+<p>There is a significant difference between the original plot and the AMR Level 1 plot, which are both theoretically
+identical. This could be due to a shifted initialisation of the bathymetry or simply an interpolation error at the station location
+by ParaView as our AMR code uses a different format to output the simulation.</p>
+<p>We can see a difference in the water level as the number of AMR levels used increases, especially the AMR 4 Levels plot
+is much more detailed compared to the AMR 1 Level plot. The more levels used, the more irregular the curve becomes.
+This is because we are in the coastal region, where the water interacts very much, and the simulation can handle rapid
+changes with more precision.</p>
+<p><strong>Station 2</strong></p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAll" for="sd-tab-item-4">
+All</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station2_all.png" src="../_images/Station2_all.png" />
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR" for="sd-tab-item-5">
+AMR</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station2_amr.png" src="../_images/Station2_amr.png" />
+</div>
+<input id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR1Original" for="sd-tab-item-6">
+AMR 1 Level &amp; Original</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station2_amr0_original.png" src="../_images/Station2_amr0_original.png" />
+</div>
+<input id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="tab" data-sync-id="StationsAMR14" for="sd-tab-item-7">
+AMR 1 &amp; 4 Levels</label><div class="sd-tab-content docutils">
+<img alt="../_images/Station2_amr_0_3.png" src="../_images/Station2_amr_0_3.png" />
+</div>
+</div>
+<p>The differences in the seconds stations are not very noticeable.
+This is because the water is not very hectic and we have a long wave travelling to the right.
+Only at simulation time 8000 seconds a significant difference can be seen between 1 and 4 Levels.
+Apparently there is a change at station 2 at this time which could only be taken into account by a high level of refinement.</p>
+</section>
+<section id="amr-tsunami">
+<h3>AMR Tsunami<a class="headerlink" href="#amr-tsunami" title="Link to this heading"></a></h3>
+<p>These videos show the rendered tsunami for different levels of refinement using the output data from the benchmark.
+Some small difference in wave height can be observed across the videos.
+The bottom right color legend ranges from -6 to 20 and color the waves.
+The color legend in the top right corner is a snippet from -1 to 1 of the legend below.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+Original</label><div class="sd-tab-content docutils">
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/Original.mp4" type="video/mp4">
+    </video>
+</center></div>
+<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
+1 Level</label><div class="sd-tab-content docutils">
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/AMR_ref0.mp4" type="video/mp4">
+    </video>
+</center></div>
+<input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
+2 Levels</label><div class="sd-tab-content docutils">
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/AMR_ref1.mp4" type="video/mp4">
+    </video>
+</center></div>
+<input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+3 Levels</label><div class="sd-tab-content docutils">
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/AMR_ref2.mp4" type="video/mp4">
+    </video>
+</center></div>
+<input id="sd-tab-item-12" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
+4 Levels</label><div class="sd-tab-content docutils">
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/AMR_ref3.mp4" type="video/mp4">
+    </video>
+</center></div>
+</div>
+<p>The last video shows the levels of refinement created and merged by <code class="docutils literal notranslate"><span class="pre">AMReX</span></code>. Here we have used 4 AMR levels.
+The criteria yields visually a very good level of refinement near the shore and at the moving waves.
+The shore is preferred by the criteria because it has high waves and high velocity due to reflections.</p>
+<center>
+    <video width="900" controls>
+        <source src="../_static/videos/AMR_ref3_levels.mp4" type="video/mp4">
+    </video>
+</center></section>
+</section>
+<section id="building-running-the-amr-project">
+<h2>11.6 Building &amp; Running the AMR Project<a class="headerlink" href="#building-running-the-amr-project" title="Link to this heading"></a></h2>
+<p>The <strong>requierements</strong> and <strong>building process</strong> are the same as in <a class="reference internal" href="../getting_started/building_project.html#getting-started-building-project"><span class="std std-ref">Building the Project</span></a>.</p>
+<section id="running-the-simulation">
+<h3>Running the Simulation<a class="headerlink" href="#running-the-simulation" title="Link to this heading"></a></h3>
+<p>The executables have been build in to the <code class="docutils literal notranslate"><span class="pre">../Tsunami-Simulation/build</span></code> directory with their corresponding name.
+E.g. For <code class="docutils literal notranslate"><span class="pre">simulation</span></code> the executable name would be <code class="docutils literal notranslate"><span class="pre">simulation</span></code> (or <code class="docutils literal notranslate"><span class="pre">simulation.exe</span></code> on Windows), etc.</p>
+<p>All the executables can be found in <code class="docutils literal notranslate"><span class="pre">../Tsunami-Simulation/build</span></code>.
+The available executables are <code class="docutils literal notranslate"><span class="pre">simulation</span></code>, <code class="docutils literal notranslate"><span class="pre">sanitize</span></code>, <code class="docutils literal notranslate"><span class="pre">test</span></code>, <code class="docutils literal notranslate"><span class="pre">sanitize_test</span></code> and <code class="docutils literal notranslate"><span class="pre">test_middle_states</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>They are only available when build with their respective <code class="docutils literal notranslate"><span class="pre">--target</span></code></p>
+</div>
+<p>E.g. the <code class="docutils literal notranslate"><span class="pre">simulation</span></code> executable can be run with the following command:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="o">/</span><span class="n">simulation</span>
+</pre></div>
+</div>
+<p>Or on Windows with</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="o">/</span><span class="n">simulation</span><span class="p">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The AMR project uses a settings file <code class="docutils literal notranslate"><span class="pre">inputs.amrex</span></code> to configure the simulation, which is located in <code class="docutils literal notranslate"><span class="pre">root/resources/inputs.amrex</span></code>.</p>
+</div>
+</section>
+<section id="simulation-output">
+<h3>Simulation Output<a class="headerlink" href="#simulation-output" title="Link to this heading"></a></h3>
+<p>The output of the simulation consists of multiple plot folders.
+The files are stored in a separate <code class="docutils literal notranslate"><span class="pre">solutions/</span></code> folder, which is located in the working directory of the executable.</p>
+</section>
+<section id="id27">
+<h3>Visualization<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<p>“There are several visualization tools that can be used for AMReX plotfiles.
+The standard tool used within the AMReX-community is Amrvis, a package developed
+and supported by CCSE that is designed specifically for highly efficient visualization
+of block-structured hierarchical AMR data. Plotfiles can also be viewed using the VisIt, ParaView,
+and yt packages. Particle data can be viewed using ParaView.”<a class="footnote-reference brackets" href="#id45" id="id28" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a></p>
+<p><a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Visualization_Chapter.html">Here</a> you can find information how to visulaize.</p>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id29" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#box-intvect-and-indextype">https://amrex-codes.github.io/amrex/docs_html/Basics.html#box-intvect-and-indextype</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id30" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#boxarray">https://amrex-codes.github.io/amrex/docs_html/Basics.html#boxarray</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id31" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#distributionmapping">https://amrex-codes.github.io/amrex/docs_html/Basics.html#distributionmapping</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id32" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#basefab-farraybox-iarraybox-and-array4">https://amrex-codes.github.io/amrex/docs_html/Basics.html#basefab-farraybox-iarraybox-and-array4</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id33" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id6">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#sec-basics-multifab">https://amrex-codes.github.io/amrex/docs_html/Basics.html#sec-basics-multifab</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id34" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">6</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#realbox-and-geometry">https://amrex-codes.github.io/amrex/docs_html/Basics.html#realbox-and-geometry</a> (03.02.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id35" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id9">1</a>,<a role="doc-backlink" href="#id10">2</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/AmrCore.html#the-advection-equation">https://amrex-codes.github.io/amrex/docs_html/AmrCore.html#the-advection-equation</a> (02.02.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id36" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id11">1</a>,<a role="doc-backlink" href="#id12">2</a>,<a role="doc-backlink" href="#id13">3</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/AmrCore.html#amrmesh-and-amrcore">https://amrex-codes.github.io/amrex/docs_html/AmrCore.html#amrmesh-and-amrcore</a> (02.02.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id37" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">9</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#initialize-and-finalize">https://amrex-codes.github.io/amrex/docs_html/Basics.html#initialize-and-finalize</a> (28.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id38" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">10</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#parmparse">https://amrex-codes.github.io/amrex/docs_html/Basics.html#parmparse</a> (28.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id39" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">11</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#mfiter-and-tiling">https://amrex-codes.github.io/amrex/docs_html/Basics.html#mfiter-and-tiling</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id40" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">12</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Basics.html#parallelfor">https://amrex-codes.github.io/amrex/docs_html/Basics.html#parallelfor</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id41" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">13</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/IO">https://amrex-codes.github.io/amrex/docs_html/IO</a>.html# (28.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id42" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id22">3</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/AmrCore.html?highlight=fillpatchtwolevels#fillpatchutil-and-interpolater">https://amrex-codes.github.io/amrex/docs_html/AmrCore.html?highlight=fillpatchtwolevels#fillpatchutil-and-interpolater</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id43" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">15</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://github.com/AMReX-Codes/amrex/issues/396#issuecomment-455806287">https://github.com/AMReX-Codes/amrex/issues/396#issuecomment-455806287</a> (29.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id44" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id24">1</a>,<a role="doc-backlink" href="#id25">2</a>)</span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/LoadBalancing.html">https://amrex-codes.github.io/amrex/docs_html/LoadBalancing.html</a> (02.02.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id45" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id28">17</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/Visualization_Chapter.html">https://amrex-codes.github.io/amrex/docs_html/Visualization_Chapter.html</a> (04.02.2024)</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="individual_phase.html" class="btn btn-neutral float-left" title="10. Individual Phase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/tsunami_lab.html" class="btn btn-neutral float-right" title="tsunami_lab" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

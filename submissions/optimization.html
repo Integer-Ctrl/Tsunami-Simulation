@@ -1,0 +1,965 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8. Optimization &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9. Parallelization" href="parallelization.html" />
+    <link rel="prev" title="7. Checkpointing and Coarse Output" href="checkpoint_coarse_output.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">8. Optimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ara">8.1. ARA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup-on-cluster">1. Setup on cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verification">2. Verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison">3. Comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#compilers">8.2 Compilers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#support-for-generic-compilers">1. Support for generic compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#intel-vs-gnu-compiler">2. INTEL vs GNU compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#intel-vs-gnu-flags">3. INTEL vs GNU flags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization-report">4. Optimization Report</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#instrumentation-and-performance-counters">8.3 Instrumentation and Performance Counters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#x-forwarding-and-start-the-vtune-gui">1. X-forwarding and start the VTune GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-analysis-in-a-batch-job">2. Running analysis in a batch job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualization-of-the-result-in-the-gui">3. Visualization of the result in the GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-intensive-parts">4. Compute-intensive parts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">5. Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">8. Optimization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/optimization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="optimization">
+<span id="submissions-optimization"></span><h1>8. Optimization<a class="headerlink" href="#optimization" title="Link to this heading"></a></h1>
+<section id="ara">
+<h2>8.1. ARA<a class="headerlink" href="#ara" title="Link to this heading"></a></h2>
+<section id="setup-on-cluster">
+<h3>1. Setup on cluster<a class="headerlink" href="#setup-on-cluster" title="Link to this heading"></a></h3>
+<p>Follow the instructions off <a class="reference internal" href="../getting_started/building_project.html#getting-started-building-project"><span class="std std-ref">Building the Project</span></a>.</p>
+<p>To simplify matters, we have created two Slurm scripts for running our simulations. The first one <code class="docutils literal notranslate"><span class="pre">launchSimulation.sh</span></code>
+compiles our code and is a wrapper to start the actually script <code class="docutils literal notranslate"><span class="pre">simulation.sh</span></code> in the right direction.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>///File:<span class="w"> </span>launchSimulation.sh
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --job-name=launch_simulation</span>
+<span class="c1">#SBATCH --output=launch_simulation.out</span>
+<span class="c1">#SBATCH --partition=s_standard</span>
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --time=00:10:00</span>
+<span class="c1">#SBATCH --cpus-per-task=2</span>
+<span class="c1">#SBATCH --mem=4G</span>
+
+<span class="nb">set</span><span class="w"> </span>-e
+
+<span class="nv">BuildDirectory</span><span class="o">=</span><span class="s2">&quot;/home/</span><span class="nv">$USER</span><span class="s2">/tsunami/Tsunami-Simulation/build&quot;</span>
+<span class="nv">ScriptDirectory</span><span class="o">=</span><span class="s2">&quot;/home/</span><span class="nv">$USER</span><span class="s2">/tsunami&quot;</span>
+
+<span class="c1"># Loading cmake to launch this task</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Loading needed modules&quot;</span>
+module<span class="w"> </span>load<span class="w"> </span>tools/cmake/3.22.2
+module<span class="w"> </span>load<span class="w"> </span>libs/netcdf/4.6.1-gcc-7.3.0
+module<span class="w"> </span>load<span class="w"> </span>compiler/gcc/11.2.0
+module<span class="w"> </span>load<span class="w"> </span>compiler/intel/2020-Update2
+
+
+<span class="c1"># Cleaning up Build Directory</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Cleaning up Build Directory&quot;</span>
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BuildDirectory</span><span class="s2">&quot;</span>
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BuildDirectory</span><span class="s2">&quot;</span>
+mkdir<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BuildDirectory</span><span class="s2">&quot;</span>
+
+<span class="c1"># Setting up cmake</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Setting up cmake&quot;</span>
+<span class="c1"># intel compiler can only be used without io</span>
+<span class="nv">CC</span><span class="o">=</span><span class="s2">&quot;/cluster/intel/parallel_studio_xe_2020.2.108/compilers_and_libraries_2020/linux/bin/intel64/icc&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CXX</span><span class="o">=</span><span class="s2">&quot;/cluster/intel/parallel_studio_xe_2020.2.108/compilers_and_libraries_2020/linux/bin/intel64/icpc&quot;</span><span class="w"> </span><span class="se">\</span>
+cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span>-D<span class="w"> </span><span class="nv">DISABLE_IO</span><span class="o">=</span>ON
+
+<span class="c1"># Compiling c++</span>
+<span class="c1"># Options:</span>
+<span class="c1">#   --config: Release, Debug</span>
+<span class="c1">#   --target: simulation, sanitize, test, sanitize_test, test_middle_states</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Building the project&quot;</span>
+cmake<span class="w"> </span>--build<span class="w"> </span>.<span class="w"> </span>--target<span class="w"> </span>simulation
+
+<span class="c1">#creating ouput directory</span>
+<span class="nv">directory</span><span class="o">=</span>/beegfs/<span class="nv">$USER</span>/<span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%F_%H-%M&quot;</span><span class="k">)</span>
+mkdir<span class="w"> </span><span class="nv">$directory</span>
+
+<span class="c1"># Coping requiered resources for this job</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Copying files to </span><span class="nv">$directory</span><span class="s2">&quot;</span>
+cp<span class="w"> </span>simulation<span class="w"> </span><span class="nv">$directory</span>/simulation
+mkdir<span class="w"> </span><span class="nv">$directory</span>/resources
+cp<span class="w"> </span>-R<span class="w"> </span>resources/*<span class="w"> </span><span class="nv">$directory</span>/resources/
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Launching the job&quot;</span>
+sbatch<span class="w"> </span>-D<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$directory</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ScriptDirectory</span><span class="s2">&quot;</span>/simulation.sh
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">simulation.sh</span></code> then runs the actual simulation on a long term node with lots of resources.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>///File:<span class="w"> </span>simulation.sh
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --job-name=tsunami_simulation</span>
+<span class="c1">#SBATCH --output=simulation.out</span>
+<span class="c1">#SBATCH --partition=s_hadoop</span>
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --time=120:00:00</span>
+<span class="c1">#SBATCH --cpus-per-task=72</span>
+<span class="c1">#SBATCH --mem=128G</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Start executing &#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;:&quot;</span>
+
+./simulation<span class="w"> </span><span class="m">2700</span><span class="w"> </span><span class="m">1500</span><span class="w"> </span>-B<span class="w"> </span>-w<span class="w"> </span><span class="m">60</span><span class="w"> </span>-t<span class="w"> </span><span class="m">13000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+</section>
+<section id="verification">
+<h3>2. Verification<a class="headerlink" href="#verification" title="Link to this heading"></a></h3>
+<p>Scale in x-dimension predetermined with <span class="math notranslate nohighlight">\(x: 2700000\)</span> <span class="raw-html"><br></span>
+Scale in y-dimension predetermined with <span class="math notranslate nohighlight">\(y: 1500000\)</span></p>
+<p>Cell size: <strong>2000m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{2000}=1350\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{2000}=750\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_2000_ara.mp4" type="video/mp4">
+    </video>
+</center><p>Cell size: <strong>1000m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=2700\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=1500\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_1000_ara.mp4" type="video/mp4">
+    </video>
+</center><p>As we can see, the results of both simulations match those in <a class="reference internal" href="tsunami_simulation.html#submissions-tsunami-simulation-tohoku"><span class="std std-ref">1. Simulation of the tsunami event (Tohoku)</span></a>.</p>
+</section>
+<section id="comparison">
+<h3>3. Comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="raw-html"><center>Local machine</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>ARA cluster</center></span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="2"><p><span class="raw-html"><center>./simulation 1350 750 -B -w 60 -t 13000 -c 5</center></span></p></td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./simulation<span class="w"> </span><span class="m">1350</span><span class="w"> </span><span class="m">750</span><span class="w"> </span>-B<span class="w"> </span>-w<span class="w"> </span><span class="m">60</span><span class="w"> </span>-t<span class="w"> </span><span class="m">13000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">5</span>
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">1350</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">750</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">2000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">306</span>.636
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">5</span><span class="w"> </span>min<span class="w"> </span><span class="m">0</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">67</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">67</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 1350 750 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">1350</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">750</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">2000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">306</span>.636
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">10</span><span class="w"> </span>min<span class="w"> </span><span class="m">37</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">143</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">142</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><span class="raw-html"><center>./simulation 2700 1500 -B -w 60 -t 13000 -c 5</center></span></p></td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./simulation<span class="w"> </span><span class="m">2700</span><span class="w"> </span><span class="m">1500</span><span class="w"> </span>-B<span class="w"> </span>-w<span class="w"> </span><span class="m">60</span><span class="w"> </span>-t<span class="w"> </span><span class="m">13000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">5</span>
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">40</span><span class="w"> </span>min<span class="w"> </span><span class="m">24</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">272</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">67</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">1</span><span class="w"> </span>h<span class="w"> </span><span class="m">28</span><span class="w"> </span>min<span class="w"> </span><span class="m">28</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">597</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">147</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The data shows that the local machine is more than <strong>twice as fast</strong> as the ARA cluster (with <code class="docutils literal notranslate"><span class="pre">-O0</span></code>).</p>
+</section>
+</section>
+<section id="compilers">
+<h2>8.2 Compilers<a class="headerlink" href="#compilers" title="Link to this heading"></a></h2>
+<section id="support-for-generic-compilers">
+<h3>1. Support for generic compilers<a class="headerlink" href="#support-for-generic-compilers" title="Link to this heading"></a></h3>
+<p>To change the compiler on the <strong>ARA cluster</strong> we have to specify the path in the <code class="docutils literal notranslate"><span class="pre">launchSimulation.sh</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>///File:<span class="w"> </span>launchSimulation.sh
+<span class="o">[</span><span class="w"> </span>...<span class="w"> </span><span class="o">]</span>
+<span class="c1"># Setting up cmake</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Setting up cmake&quot;</span>
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BuildDirectory</span><span class="s2">&quot;</span>
+<span class="c1"># intel compiler can only be used without io</span>
+<span class="hll"><span class="nv">CC</span><span class="o">=</span><span class="s2">&quot;/cluster/intel/parallel_studio_xe_2020.2.108/compilers_and_libraries_2020/linux/bin/intel64/icc&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span class="hll"><span class="nv">CXX</span><span class="o">=</span><span class="s2">&quot;/cluster/intel/parallel_studio_xe_2020.2.108/compilers_and_libraries_2020/linux/bin/intel64/icpc&quot;</span><span class="w"> </span><span class="se">\</span>
+</span>cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span>-D<span class="w"> </span><span class="nv">DISABLE_IO</span><span class="o">=</span>ON
+<span class="o">[</span><span class="w"> </span>...<span class="w"> </span><span class="o">]</span>
+</pre></div>
+</div>
+<p>If you are compiling on your local machine or on another server, you can pass the path of your compiler to <strong>cmake</strong> via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CC</span><span class="o">=</span>path/to/c/compiler<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>path/to/c++/compiler<span class="w"> </span>cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</pre></div>
+</div>
+<p>or with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_C_COMPILER</span><span class="o">=</span>path/to/c/compiler<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_CXX_COMPILER</span><span class="o">=</span>path/to/c++/compiler<span class="w"> </span>..<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</pre></div>
+</div>
+</section>
+<section id="intel-vs-gnu-compiler">
+<h3>2. INTEL vs GNU compiler<a class="headerlink" href="#intel-vs-gnu-compiler" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="raw-html"><center>INTEL</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>GNU</center></span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="2"><p><span class="raw-html"><center>./simulation 1350 750 -B -w 60 -t 13000 -c 5</center></span></p></td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 1350 750 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">1350</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">750</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">2000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">306</span>.636
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">2</span><span class="w"> </span>min<span class="w"> </span><span class="m">55</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">39</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">39</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 1350 750 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">1350</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">750</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">2000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">306</span>.636
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">3</span><span class="w"> </span>min<span class="w"> </span><span class="m">33</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">48</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">47</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><span class="raw-html"><center>./simulation 2700 1500 -B -w 60 -t 13000 -c 5</center></span></p></td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">24</span><span class="w"> </span>min<span class="w"> </span><span class="m">30</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">165</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">40</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">30</span><span class="w"> </span>min<span class="w"> </span><span class="m">17</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">204</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">50</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>As we can observe, the Intel compiler is a big step ahead of the GNU compiler (with <code class="docutils literal notranslate"><span class="pre">-O2</span></code>).</p>
+</section>
+<section id="intel-vs-gnu-flags">
+<h3>3. INTEL vs GNU flags<a class="headerlink" href="#intel-vs-gnu-flags" title="Link to this heading"></a></h3>
+<p><strong>Numerical accuracy</strong></p>
+<p>An increase in numerical inaccuracy in the <code class="docutils literal notranslate"><span class="pre">GNU</span></code> compiler begins with the flag -Ofast. It enables all -O3 optimizations
+and turns on -ffast-math. This option can result in incorrect output for programs that depend on an exact implementation
+of IEEE or ISO rules/specifications for math functions.</p>
+<p>Increasing numerical inaccuracy in the <strong>INTEL icpc</strong> compiler also starts with using the -Ofast flag. It sets the
+compiler options -O3, -no-prec-div and -fp-model fast=2. -no-prec-div improves the precision of floating-point division.
+It has a small impact on speed. -fp-model fast=2 tells the compiler to use more aggressive optimisations when implementing
+floating-point calculations.  These optimisations increase speed, but may reduce the accuracy or reproducibility of
+floating-point calculations. floating-point calculations.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="raw-html"><center>INTEL</center></span></p></th>
+<th class="head"><p><span class="raw-html"><center>GNU</center></span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="2"><p><span class="raw-html"><center>./simulation 2700 1500 -B -w 60 -t 13000 -c 5</center></span></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><span class="raw-html"><center>-O2</center></span></p></td>
+</tr>
+<tr class="row-even"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">24</span><span class="w"> </span>min<span class="w"> </span><span class="m">30</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">165</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">40</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">30</span><span class="w"> </span>min<span class="w"> </span><span class="m">17</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">204</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">50</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><span class="raw-html"><center>-O3</center></span></p></td>
+</tr>
+<tr class="row-even"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">24</span><span class="w"> </span>min<span class="w"> </span><span class="m">53</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">168</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">41</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">30</span><span class="w"> </span>min<span class="w"> </span><span class="m">20</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">204</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">50</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><span class="raw-html"><center>-Ofast</center></span></p></td>
+</tr>
+<tr class="row-even"><td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">24</span><span class="w"> </span>min<span class="w"> </span><span class="m">41</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">166</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">41</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">27</span><span class="w"> </span>min<span class="w"> </span><span class="m">39</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">186</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">46</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The Intel compiler is the fastest overall, with the fastest optimization being O2.
+With the GNU compiler, the fastest time is Ofast, whereas O2 and O3 are almost the same in terms of speed.</p>
+</section>
+<section id="optimization-report">
+<h3>4. Optimization Report<a class="headerlink" href="#optimization-report" title="Link to this heading"></a></h3>
+<p><strong>Option: Generating Report</strong></p>
+<p>An option has been added to <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> to generate the report if the option
+REPORT`` is activated during the cmake generation process.
+To activate the report, add <code class="docutils literal notranslate"><span class="pre">-D</span> <span class="pre">REPORT=ON</span></code>.
+E.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>..<span class="w"> </span>-D<span class="w"> </span><span class="nv">REPORT</span><span class="o">=</span>ON
+</pre></div>
+</div>
+<p><strong>Results</strong></p>
+<p>The GNU compiler generates an optimization report with the option <code class="docutils literal notranslate"><span class="pre">-fopt-info-optimized=opt_gnu.optrpt</span></code> and creates
+a report, for example this <a class="reference download internal" download="" href="../_downloads/6d6069f246958519f8f7467564c02e5e/opt_gnu_O2.optrpt"><code class="xref download docutils literal notranslate"><span class="pre">Optimization</span> <span class="pre">Report</span></code></a>.
+Mostly it inlines <code class="docutils literal notranslate"><span class="pre">functions</span></code> and <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> inside the same object and from the imported libraries.
+It also unrolled small loops and distributed some loops into library calls.
+Furthermore it sinks common stores with same value.
+The most time-consuming part is the function <code class="docutils literal notranslate"><span class="pre">netUpdates</span></code>.
+Unfortunately the compiler does not vectorizes the code, but at least inlines the F-Wave solver into <code class="docutils literal notranslate"><span class="pre">netUpdates</span></code>.</p>
+</section>
+</section>
+<section id="instrumentation-and-performance-counters">
+<h2>8.3 Instrumentation and Performance Counters<a class="headerlink" href="#instrumentation-and-performance-counters" title="Link to this heading"></a></h2>
+<section id="x-forwarding-and-start-the-vtune-gui">
+<h3>1. X-forwarding and start the VTune GUI<a class="headerlink" href="#x-forwarding-and-start-the-vtune-gui" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Login to the cluster with enabled X-forwarding <code class="code docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-X</span> <span class="pre">&lt;username&gt;&#64;ara-login01.rz.uni-jena.de</span></code></p></li>
+<li><p>Load required module <code class="code docutils literal notranslate"><span class="pre">module</span> <span class="pre">load</span> <span class="pre">compiler/intel/2020-Update2</span></code></p></li>
+<li><p>Start VTUne GUI <code class="code docutils literal notranslate"><span class="pre">vtune-gui</span> <span class="pre">&amp;</span></code></p></li>
+<li><p>Create a new project for your application and add an analysis to the project</p></li>
+<li><p>Copy the [Command] from your configuration in VTune</p></li>
+</ol>
+<ol class="arabic simple" start="5">
+<li><p>Allocate a node:</p></li>
+</ol>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">salloc</span> <span class="pre">-p</span> <span class="pre">s_hadoop</span> <span class="pre">--time=4:00:00</span> <span class="pre">-n</span> <span class="pre">72</span> <span class="pre">-N</span> <span class="pre">1</span> <span class="pre">--mem=32G</span></code></p></li>
+</ul>
+<ol class="arabic simple" start="6">
+<li><p>Run your copied command it in the terminal on your allocated node <code class="code docutils literal notranslate"><span class="pre">srun</span> <span class="pre">[COMMAND]</span></code></p></li>
+</ol>
+</section>
+<section id="running-analysis-in-a-batch-job">
+<h3>2. Running analysis in a batch job<a class="headerlink" href="#running-analysis-in-a-batch-job" title="Link to this heading"></a></h3>
+<p>First we created our batch job <code class="docutils literal notranslate"><span class="pre">runVTuneAnalysis.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --job-name=run_vtune_analysis</span>
+<span class="c1">#SBATCH --output=vtune_analysis.out</span>
+<span class="c1">#SBATCH --partition=b_standard</span>
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --time=04:00:00</span>
+<span class="c1">#SBATCH --cpus-per-task=36</span>
+<span class="c1">#SBATCH --mem=64G</span>
+
+<span class="nb">set</span><span class="w"> </span>-e
+
+<span class="nv">OutputDirectory</span><span class="o">=</span>/home/<span class="nv">$USER</span>/tsunami/analysis_<span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%F_%H-%M&quot;</span><span class="k">)</span>
+<span class="nv">ScriptDirectory</span><span class="o">=</span>/home/<span class="nv">$USER</span>/tsunami
+
+<span class="c1"># Loading cmake to launch this task</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Loading needed modules&quot;</span>
+module<span class="w"> </span>load<span class="w"> </span>compiler/intel/2020-Update2
+module<span class="w"> </span>load<span class="w"> </span>compiler/gcc/11.2.0
+
+mkdir<span class="w"> </span><span class="nv">$OutputDirectory</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$OutputDirectory</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$OutputDirectory</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Start VTune analysis.&quot;</span>
+<span class="hll"><span class="c1"># replace the line below with your configured VTune project command</span>
+</span><span class="hll">/cluster/intel/vtune_profiler_2020.2.0.610396/bin64/vtune<span class="w"> </span>-collect<span class="w"> </span>hotspots<span class="w"> </span>-app-working-dir<span class="w"> </span>/beegfs/ho62zoq/tsunami/Tsunami-Simulation/build<span class="w"> </span>--<span class="w"> </span>/beegfs/ho62zoq/tsunami/Tsunami-Simulation/build/simulation<span class="w"> </span><span class="m">1350</span><span class="w"> </span><span class="m">750</span><span class="w"> </span>-B<span class="w"> </span>-w<span class="w"> </span><span class="m">60</span><span class="w"> </span>-t<span class="w"> </span><span class="m">13000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">5</span>
+</span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;Finished analysis.\nResults in directory &#39;</span><span class="nv">$OutputDirectory</span><span class="s2">&#39;.\n&quot;</span>
+</pre></div>
+</div>
+<p>Afterwards we can start the batch job with <code class="code docutils literal notranslate"><span class="pre">sbatch</span> <span class="pre">runVTuneAnalysis.sh</span></code>.</p>
+</section>
+<section id="visualization-of-the-result-in-the-gui">
+<h3>3. Visualization of the result in the GUI<a class="headerlink" href="#visualization-of-the-result-in-the-gui" title="Link to this heading"></a></h3>
+<p>Used debug symbols: <code class="docutils literal notranslate"><span class="pre">-g</span></code> and <code class="docutils literal notranslate"><span class="pre">-fno-inline</span></code>.</p>
+<p><strong>Overview</strong></p>
+<a class="reference internal image-reference" href="../_images/task_8_3_overview.png"><img alt="../_images/task_8_3_overview.png" class="align-center" src="../_images/task_8_3_overview.png" style="width: 1000px;" />
+</a>
+<p><strong>Bottom-up</strong></p>
+<a class="reference internal image-reference" href="../_images/task_8_3_top_down_tree.png"><img alt="../_images/task_8_3_top_down_tree.png" class="align-center" src="../_images/task_8_3_top_down_tree.png" style="width: 700px;" />
+</a>
+</section>
+<section id="compute-intensive-parts">
+<h3>4. Compute-intensive parts<a class="headerlink" href="#compute-intensive-parts" title="Link to this heading"></a></h3>
+<p>Our total elapsed time is around 395 seconds.</p>
+<p>The most time consuming function is <code class="docutils literal notranslate"><span class="pre">WavePropagation2d::timeStep</span></code> as we expected thus this is the simulating function
+of our computation with 100 seconds. The second most time consuming function is <code class="docutils literal notranslate"><span class="pre">FWave::netUpdates</span></code> with around 92
+seconds.</p>
+<p>Unexpectedly, the timeStep function takes longer than the netUpdate function, although the primary calculations are
+carried out in the netUpdate function. It can therefore be assumed that the function calls of netUpdates and
+calculateReflection in timeStep require a lot of time.</p>
+<p>The third place <code class="docutils literal notranslate"><span class="pre">FWave::computeEigenvalues</span></code> takes nearly 81 seconds. We did not expected that due to the fact that we
+aren’t computing much in this method besides three calls of <code class="docutils literal notranslate"><span class="pre">std::sqrt</span></code> which is only 8% of the time.</p>
+</section>
+<section id="id1">
+<h3>5. Optimization<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>We have made some minor adjustments by moving all calculations that can be calculated during initialization in the constructors.
+We have also adjusted some mathematical expressions to avoid the calculation of duplicates and divisions.
+With these optimizations we have achieved an improvement of about 0.2%.</p>
+<p>The biggest improvement results from an additional loop that ensures that all values loaded into the cache are used.
+We have also ensured the alignment of the array using the <code class="docutils literal notranslate"><span class="pre">aligned_alloc</span></code> function.
+This optimization leads to an improvement of 14.8 %.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: constants.h</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">aligned_alloc</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="o">*&amp;</span><span class="w"> </span><span class="n">rawPtr</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">alignof</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// calculates size of array with overhead for alignment</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignedSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">alignment</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// init the array</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">T</span><span class="p">[</span><span class="n">alignedSize</span><span class="p">]{</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="n">rawPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// prepare for align and align the array</span>
+<span class="w">    </span><span class="n">alignedSize</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// std::align works with size in bytes</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">align</span><span class="p">(</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">alignedSize</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// convert the result T* and check if the array is large enough</span>
+<span class="w">    </span><span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">alignedSize</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The above-mentioned improvements result in an overall improvement of <strong>15 %</strong>.</p>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="checkpoint_coarse_output.html" class="btn btn-neutral float-left" title="7. Checkpointing and Coarse Output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parallelization.html" class="btn btn-neutral float-right" title="9. Parallelization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

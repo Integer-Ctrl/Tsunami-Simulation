@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9. Parallelization &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="10. Individual Phase" href="individual_phase.html" />
+    <link rel="prev" title="8. Optimization" href="optimization.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. Parallelization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parallelization-using-openmp">1. Parallelization using OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#comparison-serial-and-parallelized-solver">2. Comparison serial and parallelized solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallelization-of-the-outer-vs-the-inner-loops">3. Parallelization of the outer vs. the inner loops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#different-scheduling-and-pinning-strategies">4. Different scheduling and pinning strategies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">9. Parallelization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/parallelization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parallelization">
+<span id="submissions-parallelization"></span><h1>9. Parallelization<a class="headerlink" href="#parallelization" title="Link to this heading"></a></h1>
+<section id="parallelization-using-openmp">
+<h2>1. Parallelization using OpenMP<a class="headerlink" href="#parallelization-using-openmp" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We are using the following OpenMP directives:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">#pragma</span> <span class="pre">omp</span> <span class="pre">parallel</span> <span class="pre">for</span></code> : “The <strong>omp parallel</strong> directive explicitly instructs the compiler to parallelize the chosen block of code”<a class="footnote-reference brackets" href="#id6" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#pragma</span> <span class="pre">omp</span> <span class="pre">parallel</span> <span class="pre">for</span> <span class="pre">reduction(</span> <span class="pre">reduction-identifier:list</span> <span class="pre">)</span></code> : “Performs a <strong>reduction</strong> on each data variable in list using the specified reduction-identifier”<a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#pragma</span> <span class="pre">omp</span> <span class="pre">declare</span> <span class="pre">simd</span></code> : “The <strong>omp declare simd</strong> directive is applied to a function to create one or more versions for being called in a SIMD loop”<a class="footnote-reference brackets" href="#id7" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#pragma</span> <span class="pre">omp</span> <span class="pre">simd</span></code> : “The <strong>omp simd</strong> directive is applied to a loop to indicate that multiple iterations of the loop can be executed concurrently by using SIMD instructions”<a class="footnote-reference brackets" href="#id8" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p></li>
+</ul>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> file we are using a reduction to determine the value of <code class="docutils literal notranslate"><span class="pre">l_hMax</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: main.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// set up solver</span>
+<span class="hll"><span class="cp">#pragma omp parallel for reduction(max: l_hMax)</span>
+</span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l_ny</span><span class="p">;</span><span class="w"> </span><span class="n">l_cy</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cellSize</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l_nx</span><span class="p">;</span><span class="w"> </span><span class="n">l_cx</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cellSize</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// get initial values of the setup</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_setup</span><span class="o">-&gt;</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="n">l_x</span><span class="p">,</span>
+<span class="w">                                                      </span><span class="n">l_y</span><span class="w"> </span><span class="p">);</span>
+<span class="hll"><span class="w">        </span><span class="n">l_hMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="w"> </span><span class="n">l_h</span><span class="p">,</span><span class="w"> </span><span class="n">l_hMax</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">NetCdf.cpp</span></code> we parallelized the <code class="docutils literal notranslate"><span class="pre">averageSeveral</span></code> function to increase the performance when using coarse output.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::averageSeveral</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_ny</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">singleY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_k</span><span class="p">;</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_nx</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>We used the <strong>omp declare simd directive</strong> for our functions in the <code class="docutils literal notranslate"><span class="pre">FWave.cpp</span></code> to create one or more versions when
+being called in a SIMD loop. These methods are called in <code class="docutils literal notranslate"><span class="pre">WavePropagation2d.cpp</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: FWave.cpp</span>
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeEigenvalues</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeDeltaFlux</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeEigencoefficients</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::computeBathymetryEffects</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1">// net update without bathymetry</span>
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::netUpdates</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeEigenvalues</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeDeltaFlux</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">i_huL</span><span class="p">,</span><span class="w"> </span><span class="n">i_huR</span><span class="p">,</span><span class="w"> </span><span class="n">deltaFlux</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeEigencoefficients</span><span class="p">(</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="p">,</span><span class="w"> </span><span class="n">deltaFlux</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1">// net update with bathymetry</span>
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::solvers::FWave::netUpdates</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeEigenvalues</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeDeltaFlux</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">l_uL</span><span class="p">,</span><span class="w"> </span><span class="n">l_uR</span><span class="p">,</span><span class="w"> </span><span class="n">i_huL</span><span class="p">,</span><span class="w"> </span><span class="n">i_huR</span><span class="p">,</span><span class="w"> </span><span class="n">deltaFlux</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeBathymetryEffects</span><span class="p">(</span><span class="w"> </span><span class="n">i_hL</span><span class="p">,</span><span class="w"> </span><span class="n">i_hR</span><span class="p">,</span><span class="w"> </span><span class="n">i_bL</span><span class="p">,</span><span class="w"> </span><span class="n">i_bR</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetry</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">computeEigencoefficients</span><span class="p">(</span><span class="w"> </span><span class="n">eigenvalue1</span><span class="p">,</span><span class="w"> </span><span class="n">eigenvalue2</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetryDeltaFlux</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient1</span><span class="p">,</span><span class="w"> </span><span class="n">eigencoefficient2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>However, most of the parallelization takes place in <code class="docutils literal notranslate"><span class="pre">WavePropagation2d.cpp</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: WavePropagation2d.cpp</span>
+<span class="w">    </span><span class="c1">// init new cell quantities</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">totalCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// iterates along the row</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">        </span><span class="c1">// iterates through the row</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// iterates over along the row</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="c1">// copy the calculated cell quantities</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">totalCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// only possible for f-wave solver</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">hasBathymetry</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">//  iterates over the x direction</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">full_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// iterations for more efficient cache usage</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">                </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// remaining iterations for more efficient cache usage</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">remaining_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">        </span><span class="c1">//  iterates over the x direction</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">full_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// iterations for more efficient cache usage</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">                </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// remaining iterations for more efficient cache usage</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">remaining_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">setGhostOutflow</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">stride</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">Reflection</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">calculateReflection</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp declare simd</span>
+</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">Reflection</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">calculateReflection</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">getTotalHeight</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">isDirtyTotalHeight</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="hll"><span class="cp">#pragma omp simd</span>
+</span><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation2d</span><span class="o">::</span><span class="n">updateWaterHeight</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">hasBathymetry</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="cp">#pragma omp parallel for</span>
+</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="comparison-serial-and-parallelized-solver">
+<h2>2. Comparison serial and parallelized solver<a class="headerlink" href="#comparison-serial-and-parallelized-solver" title="Link to this heading"></a></h2>
+<p><strong>Without parallelization</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+<span class="c1">#####################################################</span>
+<span class="c1">###                  Tsunami Lab                  ###</span>
+<span class="c1">###                                               ###</span>
+<span class="c1">### https://scalable.uni-jena.de                  ###</span>
+<span class="c1">### https://rivinhd.github.io/Tsunami-Simulation/ ###</span>
+<span class="c1">#####################################################</span>
+Checking<span class="w"> </span><span class="k">for</span><span class="w"> </span>Checkpoints:<span class="w"> </span>File<span class="w"> </span>IO<span class="w"> </span>is<span class="w"> </span>disabled!
+Simulation<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>2D
+Bathymetry<span class="w"> </span>is<span class="w"> </span>Enabled
+Set<span class="w"> </span>Solver:<span class="w"> </span>FWave
+Activated<span class="w"> </span>Reflection<span class="w"> </span>on<span class="w"> </span>None<span class="w"> </span>side
+Output<span class="w"> </span>format<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>netCDF
+Writing<span class="w"> </span>the<span class="w"> </span>X-/Y-Axis<span class="w"> </span><span class="k">in</span><span class="w"> </span>format<span class="w"> </span>meters
+Simulation<span class="w"> </span>Time<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span><span class="m">13000</span><span class="w"> </span>seconds
+Writing<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>disk<span class="w"> </span>every<span class="w"> </span><span class="m">60</span><span class="w"> </span>seconds<span class="w"> </span>of<span class="w"> </span>simulation<span class="w"> </span><span class="nb">time</span>
+Checkpointing<span class="w"> </span>every<span class="w"> </span><span class="m">5</span><span class="w"> </span>minutes
+runtime<span class="w"> </span>configuration
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>x-direction:<span class="w">       </span><span class="m">2700</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span><span class="k">in</span><span class="w"> </span>y-direction:<span class="w">       </span><span class="m">1500</span>
+<span class="w">  </span>cell<span class="w"> </span>size:<span class="w">                            </span><span class="m">1000</span>
+<span class="w">  </span>number<span class="w"> </span>of<span class="w"> </span>cells<span class="w"> </span>combined<span class="w"> </span>to<span class="w"> </span>one<span class="w"> </span>cell:<span class="w"> </span><span class="m">1</span>
+Max<span class="w"> </span>speed<span class="w"> </span><span class="m">307</span>.668
+entering<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+finished<span class="w"> </span><span class="nb">time</span><span class="w"> </span>loop
+freeing<span class="w"> </span>memory
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">1</span><span class="w"> </span>h<span class="w"> </span><span class="m">28</span><span class="w"> </span>min<span class="w"> </span><span class="m">28</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">597</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">147</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p><strong>With parallelization</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;MP_NUM_THREADS=72 ./simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+finished<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;solutions/simulation/solution.nc&#39;</span>.<span class="w"> </span>Use<span class="w"> </span>ncdump<span class="w"> </span>to<span class="w"> </span>view<span class="w"> </span>its<span class="w"> </span>contents.
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">3</span><span class="w"> </span>min<span class="w"> </span><span class="m">39</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">24</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">6</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p>You can see that we have a run time of around 1 h 28 min <strong>without parallelization and disabled file io</strong> and a run time
+of just 3 min 39 sec <strong>with parallelization and enabled file io</strong>. This results in a speedup of
+<span class="math notranslate nohighlight">\(S_{72} = \frac{5308 \text{ sec}}{219 \text{ sec}} \approx 24.237\)</span>.</p>
+</section>
+<section id="parallelization-of-the-outer-vs-the-inner-loops">
+<h2>3. Parallelization of the outer vs. the inner loops<a class="headerlink" href="#parallelization-of-the-outer-vs-the-inner-loops" title="Link to this heading"></a></h2>
+<p>The <strong>outer loop</strong> can be easily parallelized, as there are no dependencies between the individual cells.
+An X sweep is parallelized in the Y direction and a Y sweep in the X direction, so the direction of parallelism remains independent of each other.
+It is also more advantageous for the X sweep as the data locality is utilized.</p>
+<p>When the <strong>inner loop</strong> is parallelized, there are dependencies when updating the cells, as the current and the next iteration access the same cell.
+For this, critical sections <a class="footnote-reference brackets" href="#id9" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> must be introduced, which significantly slows down the calculation, as processes have to wait.</p>
+<p>In <strong>conclusion</strong>, the parallelization of the outer loop is better, as no dependencies arise, data locality is utilized and deadlocks are completely excluded.
+The parallelization of the outer loop is also sufficient as there are significantly more cells in x and y direction than processors.
+The parallelization of the two loops would reintroduce the cell dependency which slows down the computation.</p>
+</section>
+<section id="different-scheduling-and-pinning-strategies">
+<h2>4. Different scheduling and pinning strategies<a class="headerlink" href="#different-scheduling-and-pinning-strategies" title="Link to this heading"></a></h2>
+<p><strong>All threads</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;MP_NUM_THREADS=72 ./simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+finished<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;solutions/simulation/solution.nc&#39;</span>.<span class="w"> </span>Use<span class="w"> </span>ncdump<span class="w"> </span>to<span class="w"> </span>view<span class="w"> </span>its<span class="w"> </span>contents.
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">3</span><span class="w"> </span>min<span class="w"> </span><span class="m">39</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">24</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">6</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p><strong>Every core without their second thread</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;OMP_NUM_THREADS=36 OMP_PLACES={0}:36:1 ./simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+finished<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;solutions/simulation/solution.nc&#39;</span>.<span class="w"> </span>Use<span class="w"> </span>ncdump<span class="w"> </span>to<span class="w"> </span>view<span class="w"> </span>its<span class="w"> </span>contents.
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">2</span><span class="w"> </span>min<span class="w"> </span><span class="m">45</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">18</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">4</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p><strong>Only half of the cores with their second thread</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;OMP_NUM_THREADS=36 OMP_PLACES={0}:36:2 ./simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+finished<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;solutions/simulation/solution.nc&#39;</span>.<span class="w"> </span>Use<span class="w"> </span>ncdump<span class="w"> </span>to<span class="w"> </span>view<span class="w"> </span>its<span class="w"> </span>contents.
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">3</span><span class="w"> </span>min<span class="w"> </span><span class="m">24</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">22</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">5</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p><strong>Only half of the cores without their second thread</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Start<span class="w"> </span>executing<span class="w"> </span><span class="s1">&#39;OMP_NUM_THREADS=18 OMP_PLACES={0}:18:1 ./simulation 2700 1500 -B -w 60 -t 13000 -c 5&#39;</span>:
+finished<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;solutions/simulation/solution.nc&#39;</span>.<span class="w"> </span>Use<span class="w"> </span>ncdump<span class="w"> </span>to<span class="w"> </span>view<span class="w"> </span>its<span class="w"> </span>contents.
+<span class="hll">The<span class="w"> </span>Simulation<span class="w"> </span>took<span class="w"> </span><span class="m">0</span><span class="w"> </span>h<span class="w"> </span><span class="m">4</span><span class="w"> </span>min<span class="w"> </span><span class="m">9</span><span class="w"> </span>sec<span class="w"> </span>to<span class="w"> </span>finish.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>iteration:<span class="w"> </span><span class="m">28</span><span class="w"> </span>milliseconds.
+</span><span class="hll">Time<span class="w"> </span>per<span class="w"> </span>cell:<span class="w">      </span><span class="m">6</span><span class="w"> </span>nanoseconds.
+</span>finished,<span class="w"> </span>exiting
+</pre></div>
+</div>
+<p>You can see that the second strategy is the best in terms of runtime. It also makes sense that the simulation
+simulation time increases the fewer cores and threads are used.
+The reason for the faster runtime of the second run compared to the
+first run is not easy to clarify.
+It could be that when using both threads, switching between them causes an overhead, and since the simulation requires much more computing power than loading data, the time deteriorates.
+It is very unlikely but possible that when using both threads, one thread overwrites the cached data of the other thread.
+Communication only takes place when writing to the file system.
+This could explain why the third pass is faster than the first, where one more socket is used.
+Therefore, some communication must take place via NUMA during the first run when writing to a file.
+In the fourth configuration, half of the cores are used, which reduces the parallel performance and increases the runtime.</p>
+<section id="contribution">
+<h3>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h3>
+<p>All team members contributed equally to the tasks.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>From <a class="reference external" href="https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.1?topic=parallelization-pragma-omp-parallel">https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.1?topic=parallelization-pragma-omp-parallel</a> (07.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://www.ibm.com/docs/it/xl-c-and-cpp-linux/16.1.0?topic=parallelization-pragma-omp-declare-simd">https://www.ibm.com/docs/it/xl-c-and-cpp-linux/16.1.0?topic=parallelization-pragma-omp-declare-simd</a> (07.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.0?topic=pdop-pragma-omp-simd">https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.0?topic=pdop-pragma-omp-simd</a> (07.01.2024)</p>
+</aside>
+<aside class="footnote brackets" id="id9" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.0?topic=parallelization-pragma-omp-critical">https://www.ibm.com/docs/en/xl-c-and-cpp-linux/16.1.0?topic=parallelization-pragma-omp-critical</a> (07.01.2024)</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="optimization.html" class="btn btn-neutral float-left" title="8. Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="individual_phase.html" class="btn btn-neutral float-right" title="10. Individual Phase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

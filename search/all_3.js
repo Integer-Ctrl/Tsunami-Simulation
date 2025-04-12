@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['netupdates_6',['netUpdates',['../classtsunami__lab_1_1solvers_1_1Roe.html#afd6790dc03b4a684728ccdea0661c0eb',1,'tsunami_lab::solvers::Roe']]]
+  ['errorest_0',['ErrorEst',['../classtsunami__lab_1_1amr_1_1AMRCoreWavePropagation2d.html#a848de2601249a4fce0ff3bb80cbc270e',1,'tsunami_lab::amr::AMRCoreWavePropagation2d']]],
+  ['evolve_1',['Evolve',['../classtsunami__lab_1_1amr_1_1AMRCoreWavePropagation2d.html#a9b266aa267020441d48cf6d70e4fa233',1,'tsunami_lab::amr::AMRCoreWavePropagation2d']]]
 ];

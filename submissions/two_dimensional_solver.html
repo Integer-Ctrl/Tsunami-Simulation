@@ -1,0 +1,877 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4. Two-Dimensional Solver &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. Large Data Input and Output" href="large_data_input_output.html" />
+    <link rel="prev" title="3. Bathymetry &amp; Boundary Conditions" href="bathymetry_boundary_conditions.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Two-Dimensional Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dimensional-splitting">4.1. Dimensional Splitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#two-dimensional-splitting">1. Two-Dimensional Splitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#circular-dam-break">2. Circular Dam Break</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bathymetry-obstacle">3. Bathymetry &amp; Obstacle</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#stations">4.2. Stations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tsunami-lab-io-stations">1. tsunami_lab::io::Stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#providing-data-and-output-frequency">2. Providing data and output-frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solver-comparison">3. Solver comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">4. Two-Dimensional Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/two_dimensional_solver.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="two-dimensional-solver">
+<span id="submissions-two-dimensional-solver"></span><h1>4. Two-Dimensional Solver<a class="headerlink" href="#two-dimensional-solver" title="Link to this heading"></a></h1>
+<section id="dimensional-splitting">
+<h2>4.1. Dimensional Splitting<a class="headerlink" href="#dimensional-splitting" title="Link to this heading"></a></h2>
+<section id="two-dimensional-splitting">
+<h3>1. Two-Dimensional Splitting<a class="headerlink" href="#two-dimensional-splitting" title="Link to this heading"></a></h3>
+<p>There are no changes needed to be done to the <code class="docutils literal notranslate"><span class="pre">F-Wave</span> <span class="pre">solver</span></code>, because two-dimensional splitting is used i.e, first calculating the x-direction than the y-direction.
+Therefore only changes will be done in <code class="docutils literal notranslate"><span class="pre">WavePropagation2d</span></code>.</p>
+<p>The constructor and destructor of <code class="docutils literal notranslate"><span class="pre">WavePropagation2d</span></code> is very similar to <code class="docutils literal notranslate"><span class="pre">WavePropagation1d</span></code> except the new variables:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m_hv</span></code> for y-momentum</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m_xCells</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">m_yCells</span></code> for the number of x and y cells</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stride</span></code> the size in x-direction including ghost cells</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">totalCells</span></code> total number of cells including ghost cells</p></li>
+</ul>
+</div></blockquote>
+<p>The functions that needed to be changed compared to <code class="docutils literal notranslate"><span class="pre">WavePropagation2d</span></code> are the <code class="docutils literal notranslate"><span class="pre">get-functions</span></code>, <code class="docutils literal notranslate"><span class="pre">timeStep</span></code> and <code class="docutils literal notranslate"><span class="pre">setGhostOutflow</span></code>.</p>
+<p><strong>get-functions</strong></p>
+<p>The get-functions now need to take the stride into account i.e. the first row need to be completely skip because ghost cells are not returned.</p>
+<p><strong>setGhostOutflow</strong></p>
+<p>In the first for loop, the ghost cells are set in the y direction, except for the first and last row (ghost rows), by taking their value from the value of their left/right neighbor.
+In the second loop, the first and last rows (ghost rows) are set by taking the value from the lower and upper neighbor.
+In both loops the activated reflection is taken into account.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Header: WavePropagation2d.h</span>
+<span class="c1">// File:   WavePropagation2d.cpp</span>
+<span class="c1">// Test:   WavePropagation2d.test.cpp</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::patches::WavePropagation2d::setGhostOutflow</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="w">    </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hu</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="w">    </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hv</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// set left boundary</span>
+<span class="w">        </span><span class="n">l_h</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_h</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">hasReflection</span><span class="p">[</span><span class="n">Side</span><span class="o">::</span><span class="n">LEFT</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hu</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hu</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hv</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hv</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// set right boundary</span>
+<span class="w">        </span><span class="n">l_h</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_h</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">hasReflection</span><span class="p">[</span><span class="n">Side</span><span class="o">::</span><span class="n">RIGHT</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hu</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hu</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hv</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hv</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="p">];</span>
+<span class="w">        </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_xCells</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">stride</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// set top complete row of ghost cells</span>
+<span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">waterRowT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_h</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_h</span><span class="p">[</span><span class="n">waterRowT</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">hasReflection</span><span class="p">[</span><span class="n">Side</span><span class="o">::</span><span class="n">TOP</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hu</span><span class="p">[</span><span class="n">waterRowT</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hv</span><span class="p">[</span><span class="n">waterRowT</span><span class="p">];</span>
+<span class="w">        </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">waterRowT</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// set bottom complete row of ghost cells</span>
+<span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">ghostRowB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">waterRowB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_h</span><span class="p">[</span><span class="n">ghostRowB</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_h</span><span class="p">[</span><span class="n">waterRowB</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">!</span><span class="n">hasReflection</span><span class="p">[</span><span class="n">Side</span><span class="o">::</span><span class="n">BOTTOM</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hu</span><span class="p">[</span><span class="n">ghostRowB</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hu</span><span class="p">[</span><span class="n">waterRowB</span><span class="p">];</span>
+<span class="w">        </span><span class="n">l_hv</span><span class="p">[</span><span class="n">ghostRowB</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hv</span><span class="p">[</span><span class="n">waterRowB</span><span class="p">];</span>
+<span class="w">        </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">ghostRowB</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_bathymetry</span><span class="p">[</span><span class="n">waterRowB</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>timeStep</strong></p>
+<p>First the update is done in x-direction.
+Therefore the height and x-momentum arrays are initialized.
+The first for loop counts in y-direction and the second for loop counts in x-direction.
+Then the index of the left and right cells are calculated.
+The next steps are the same as performed in <code class="docutils literal notranslate"><span class="pre">WavePropagation1d</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// File: WavePropagation2d.cpp</span>
+
+<span class="c1">// pointers to old and new data</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hOld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_huOld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hu</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+
+<span class="n">m_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_step</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hNew</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_huNew</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hu</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+
+<span class="c1">// init new cell quantities</span>
+<span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">totalCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ce</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ce</span><span class="p">];</span>
+</span><span class="hll"><span class="w">    </span><span class="n">l_huNew</span><span class="p">[</span><span class="n">l_ce</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_huOld</span><span class="p">[</span><span class="n">l_ce</span><span class="p">];</span>
+</span><span class="p">}</span>
+
+<span class="c1">// only possible for f-wave solver</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">hasBathymetry</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// iterates through the row</span>
+<span class="hll"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// iterates along the row</span>
+<span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">        </span><span class="p">{</span>
+<span class="hll"><span class="w">            </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span>
+</span><span class="hll">
+</span><span class="hll"><span class="w">            </span><span class="c1">// determine left and right cell-id</span>
+</span><span class="hll"><span class="w">            </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="p">;</span>
+</span><span class="hll"><span class="w">            </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span>
+<span class="w">            </span><span class="c1">// noting to compute both shore cells</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceL</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceR</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// compute reflection</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightRight</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumRight</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryRight</span><span class="p">;</span>
+
+<span class="w">            </span><span class="n">Reflection</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculateReflection</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_huOld</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_ceL</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_ceR</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryRight</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// compute net-updates</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="w">            </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">bathymetryRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">                                                     </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// update the cells&#39; quantities</span>
+<span class="w">            </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceL</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="n">l_huNew</span><span class="p">[</span><span class="n">l_ceL</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceR</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="n">l_huNew</span><span class="p">[</span><span class="n">l_ceR</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// uses a function pointer to choose between the solvers</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">netUpdates</span><span class="w"> </span><span class="p">)(</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Solver</span><span class="o">::</span><span class="n">ROE</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">netUpdates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">Roe</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then the h buffers are swapped to load the <code class="docutils literal notranslate"><span class="pre">m_h</span></code> and <code class="docutils literal notranslate"><span class="pre">m_hv</span></code> from the same step.
+Thus the new results for <code class="docutils literal notranslate"><span class="pre">m_h</span></code>, <code class="docutils literal notranslate"><span class="pre">m_hu</span></code>, <code class="docutils literal notranslate"><span class="pre">m_hv</span></code> are located in the same step.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">//swapping the h buffer new and old to write new data in previous old</span>
+<span class="hll"><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">;</span>
+</span><span class="hll"><span class="n">m_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_step</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</span><span class="hll"><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hNew</span><span class="p">;</span>
+</span>
+<span class="c1">// pointers to old and new data</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hvOld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hv</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="n">l_hOld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+
+<span class="n">m_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_step</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">l_hvNew</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_hv</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+<span class="n">l_hNew</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_h</span><span class="p">[</span><span class="n">m_step</span><span class="p">];</span>
+
+<span class="c1">// copy the calculated cell quantities</span>
+<span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">totalCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_ce</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ce</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ce</span><span class="p">];</span>
+<span class="w">    </span><span class="n">l_hvNew</span><span class="p">[</span><span class="n">l_ce</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_hvOld</span><span class="p">[</span><span class="n">l_ce</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The calculation in the y-direction follows the same principle, but now we have to take a full stride to the next cell, i.e. we use the top and bottom cells for the update.
+To make this calculation more efficient, 32 values in the x-direction are updated simultaneously in the y-direction.
+This is done to address a 128-byte cache line, i.e. <span class="math notranslate nohighlight">\(\text{sizeof(float)} \cdot 32 = 4 \text{ byte} \cdot 32 = 128 \text{ byte}\)</span>.
+Otherwise, three loaded values would be lost if the arrays are aligned correctly.
+If the cache line is smaller than 128 bytes, e.g. 64 bytes or 32 bytes, then values are loaded that would also be loaded later.
+However, the number of simultaneously updated values in the y-direction should not be too large, otherwise loaded values from the lower cells that are needed in the next iteration will be wasted.</p>
+<p>To change the value used, which makes the calculation more efficient as explained above, the variable <code class="docutils literal notranslate"><span class="pre">ITERATIONS_CACHE</span></code> is used.
+In this case, <code class="docutils literal notranslate"><span class="pre">ITERATIONS_CACHE</span></code> is 32, which will be used for the rest of the explanation.
+The implementation requires two loops.
+The first loop iterates over all cells in the x-direction as long as the number of cells is divisible by 32.
+The next inner loop iterates over the rows, and the last inner loop is used to make the calculation more efficient.
+The indices of the top and bottom cells to be updated are then determined.
+The second loop deals with the remaining cells in the x direction that are less than 32.
+The loop iterates over the rows and the inner loop over the remaining cells in the x-direction, using the same calculations as the first loop.
+The calculation of reflection and update are the same as performed in <code class="docutils literal notranslate"><span class="pre">WavePropagation1d</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// calculates xCells dividable by ITERATIONS_CACHE and remaining cells</span>
+<span class="hll"><span class="n">t_idx</span><span class="w"> </span><span class="n">full_xCells</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="p">;</span>
+</span><span class="hll"><span class="n">t_idx</span><span class="w"> </span><span class="n">remaining_xCells</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_xCells</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="p">;</span>
+</span>
+<span class="c1">// only possible for f-wave solver</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">hasBathymetry</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//  iterates over the x direction</span>
+<span class="hll"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">full_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// iterations for more efficient cache usage</span>
+<span class="hll"><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ITERATIONS_CACHE</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// determine left and right cell-id</span>
+<span class="hll"><span class="w">                </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">;</span>
+</span>
+<span class="w">                </span><span class="c1">// noting to compute both shore cells</span>
+<span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">                </span><span class="p">}</span>
+
+<span class="w">                </span><span class="c1">// compute reflection</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">;</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightRight</span><span class="p">;</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumLeft</span><span class="p">;</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumRight</span><span class="p">;</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryLeft</span><span class="p">;</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryRight</span><span class="p">;</span>
+
+<span class="w">                </span><span class="n">Reflection</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculateReflection</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">l_hvOld</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">l_ceT</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">l_ceB</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                             </span><span class="n">bathymetryRight</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="c1">// compute net-updates</span>
+<span class="w">                </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">                                                         </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="c1">// update the cells&#39; quantities</span>
+<span class="w">                </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">l_hvNew</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">l_hvNew</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// iterate over the rows i.e. y-coordinates</span>
+<span class="hll"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_yCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// remaining iterations for more efficient cache usage</span>
+<span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">remaining_xCells</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// determine left and right cell-id</span>
+<span class="hll"><span class="w">            </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">full_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">;</span>
+</span><span class="hll"><span class="w">            </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ceB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">full_xCells</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">;</span>
+</span>
+<span class="w">            </span><span class="c1">// noting to compute both shore cells</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// compute reflection</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">heightRight</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">momentumRight</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryLeft</span><span class="p">;</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">bathymetryRight</span><span class="p">;</span>
+
+<span class="w">            </span><span class="n">Reflection</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculateReflection</span><span class="p">(</span><span class="w"> </span><span class="n">l_hOld</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_hvOld</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_ceT</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">l_ceB</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                         </span><span class="n">bathymetryRight</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// compute net-updates</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="w">            </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">(</span><span class="w"> </span><span class="n">heightLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">heightRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">momentumLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">momentumRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">bathymetryRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">bathymetryLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">                                                     </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// update the cells&#39; quantities</span>
+<span class="w">            </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="n">l_hvNew</span><span class="p">[</span><span class="n">l_ceT</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">RIGHT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">l_hNew</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="n">l_hvNew</span><span class="p">[</span><span class="n">l_ceB</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_netUpdates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Reflection</span><span class="o">::</span><span class="n">LEFT</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">reflection</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// uses a function pointer to choose between the solvers</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">*</span><span class="n">netUpdates</span><span class="w"> </span><span class="p">)(</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Solver</span><span class="o">::</span><span class="n">ROE</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">netUpdates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">Roe</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="circular-dam-break">
+<span id="two-dimensional-solver-circular-dam-break"></span><h3>2. Circular Dam Break<a class="headerlink" href="#circular-dam-break" title="Link to this heading"></a></h3>
+<p>The circular dam break setup is implemented by a standard constructor with hard coded values from the example:</p>
+<div class="math notranslate nohighlight" id="two-dimensional-solver-circular-dam-break-example">
+\[\begin{split}\begin{cases}
+[h, hu, hv]^T = [10, 0, 0]^T &amp;\text{if } \sqrt{x^2+y^2} &lt; 10 \\
+[h, hu, hv]^T = [5, 0, 0]^T  \quad &amp;\text{else}
+\end{cases}\end{split}\]</div>
+<p>There is also a constructor with which the circular dam break can be adjusted, i.e. the height of the center, the height outside the center, the position of the center and the scale of the center can be set.</p>
+<p>The height is set according to the <a class="reference internal" href="#two-dimensional-solver-circular-dam-break-example">calculation in the example</a>, which creates a circle on a 2D plane.
+The momentum and bathymetry functions return zero, as none of these functions are set in this setup.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Header: CircularDamBreak2d.h</span>
+<span class="c1">// File:   CircularDamBreak2d.cpp</span>
+<span class="c1">// Test:   CircularDamBreak2d.test.cpp</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="nf">tsunami_lab::setups::CircularDamBreak2d::getHeight</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span>
+<span class="w">                                                                        </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">isInside</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">locationCenter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">locationCenter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">scaleCenter</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">isInside</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">heightCenter</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">heightOutside</span><span class="p">;</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Visualizing the circular dam break without bathymetry with 500 x 500 cells.</p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_4_1_2.mp4" type="video/mp4">
+    </video>
+</center></section>
+<section id="bathymetry-obstacle">
+<h3>3. Bathymetry &amp; Obstacle<a class="headerlink" href="#bathymetry-obstacle" title="Link to this heading"></a></h3>
+<p>Visualizing the bathymetry effects with 500 x 500 cells.</p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_4_1_3.mp4" type="video/mp4">
+    </video>
+</center><a class="reference internal image-reference" href="../_images/Task_4_1_3.png"><img alt="../_images/Task_4_1_3.png" class="align-center" src="../_images/Task_4_1_3.png" style="width: 700px;" />
+</a>
+<p>The red lines on the left and right indicate that the wave in the x-direction propagates more slowly than the wave in the y-direction because there is a dent in the bathymetry in the center in y-direction.
+Otherwise, the waves in the x and y directions should hit the simulation boundary at the same time, as can be seen in the video <a class="reference internal" href="#two-dimensional-solver-circular-dam-break">circular dam break</a> at about 3 seconds.
+The bathymetry is therefore also taken into account in the 2D simulation.</p>
+<p>Visualizing the bathymetry with and obstacle effects with 500 x 500 cells.
+Reflection at the wall can be seen at about 1 second.</p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_4_1_3_alt.mp4" type="video/mp4">
+    </video>
+</center></section>
+</section>
+<section id="stations">
+<h2>4.2. Stations<a class="headerlink" href="#stations" title="Link to this heading"></a></h2>
+<section id="tsunami-lab-io-stations">
+<h3>1. tsunami_lab::io::Stations<a class="headerlink" href="#tsunami-lab-io-stations" title="Link to this heading"></a></h3>
+<p>“When solving wave propagation problems, we are often times interested in output at specific points (or stations) of the
+computational domain. A station is defined by its coordinates <span class="math notranslate nohighlight">\(s=(x,y)\)</span> and is used to measure the water level at frequent intervals of seconds.
+a frequent interval of seconds.”<a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>New class <code class="docutils literal notranslate"><span class="pre">`tsunami_lab::io::Stations</span></code> summarizes a collection of user-defined stations.</p>
+<p>We enter the number of cells in x and y direction and the scale in x and y direction to later calculate the indices of
+the queried position at which the station is located.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:   Stations.cpp</span>
+<span class="c1">/// Header: Stations.h</span>
+<span class="c1">/// Test:   Stations.test.cpp</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">std</span><span class="o">::</span><span class="nn">filesystem</span><span class="p">;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;solutions&quot;</span><span class="p">;</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Stations</span><span class="o">::</span><span class="n">Stations</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_nx</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_ny</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_stride</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_scaleX</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_scaleY</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_nx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_ny</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_stride</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_scaleX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_scaleX</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_scaleY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_scaleY</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To get the user-defined station we have to include the header <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;nlohmann/json.hpp&gt;</span></code>
+which allows us to read data from our <code class="docutils literal notranslate"><span class="pre">config.json</span></code>. To not use the actual .json config in our test cases we decide between
+config.test.json and config.json at the beginning.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: Stations.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="cp">#ifdef TSUNAMI_SIMULATION_TEST</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ifstream</span><span class="w"> </span><span class="n">l_file</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;resources/config.test.json&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="cp">#endif </span><span class="c1">// TSUNAMI_SIMULATION_TEST</span>
+<span class="cp">#ifndef TSUNAMI_SIMULATION_TEST</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ifstream</span><span class="w"> </span><span class="n">l_file</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;resources/config.json&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="cp">#endif </span><span class="c1">// !TSUNAMI_SIMULATION_TEST</span>
+
+<span class="n">json</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+<span class="k">try</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="n">l_file</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+</span><span class="p">}</span>
+<span class="k">catch</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error parsing JSON: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We are saving the output of every station in a separate .csv file. First we check if the directory in which the data is
+saved exists. If it exists we delete the direction and in booth cases we are creating a new one with the old name.
+The same process with the single .csv files. Thus we are allways creating new data for every simulation.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: Stations.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// create station folder inside solution folder</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">fs</span><span class="o">::</span><span class="n">create_directory</span><span class="p">(</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/station&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">fs</span><span class="o">::</span><span class="n">remove_all</span><span class="p">(</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/station&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">fs</span><span class="o">::</span><span class="n">create_directory</span><span class="p">(</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/station&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now everything is set up and we can add every station which is defined in the <code class="docutils literal notranslate"><span class="pre">config.json</span></code> to our Stations class
+which will manage them. First of all we read the output frequency which all stations share. It specifies the time
+in seconds of the write operations to the stations comma-separated files.</p>
+<p>To simplify everything we defined in <code class="docutils literal notranslate"><span class="pre">Stations.h</span></code> a struct which saves the attributes of a station:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: Stations.h</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Station</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * struct to save attributes of single station</span>
+<span class="cm">     *</span>
+<span class="cm">     * @param i_name name of station</span>
+<span class="cm">     * @param i_x x-coordinate of station</span>
+<span class="cm">     * @param i_y y-coordinate of station</span>
+<span class="cm">     * @param i_path path to the station file to be written to</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="n">Station</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">i_name</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_y</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">i_path</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">m_name</span><span class="p">(</span><span class="w"> </span><span class="n">i_name</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">m_x</span><span class="p">(</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">m_y</span><span class="p">(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">m_path</span><span class="p">(</span><span class="w"> </span><span class="n">i_path</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">//! name of station</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">m_name</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//! x-coordinate of station</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">m_x</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//! y-coordinate of station</span>
+<span class="w">    </span><span class="n">t_real</span><span class="w"> </span><span class="n">m_y</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//! path to the station file to be written to</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">m_path</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Afterwards we iterate over the json array <code class="docutils literal notranslate"><span class="pre">stations</span></code> in which the single stations are specified and gather the <strong>name</strong>,
+<strong>x-coordinate</strong> and <strong>y-coordinate</strong> of every station. The structures are then added to a vector to summarizes all stations.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c1">/// File: Stations.cpp</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;output_frequency&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="hll"><span class="w">        </span><span class="n">m_outputFrequency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">&quot;output_frequency&quot;</span><span class="p">];</span>
+</span><span class="w">    </span><span class="c1">// add stations</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;stations&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">l_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s">&quot;name&quot;</span><span class="p">];</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s">&quot;x&quot;</span><span class="p">];</span>
+<span class="w">            </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s">&quot;y&quot;</span><span class="p">];</span>
+<span class="hll"><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">l_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/station/&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l_name</span><span class="p">;</span>
+</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">l_fileStation</span><span class="p">;</span>
+<span class="w">            </span><span class="n">l_fileStation</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="w"> </span><span class="n">l_path</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">app</span><span class="w"> </span><span class="p">);</span>
+<span class="w">            </span><span class="n">l_fileStation</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;timestep,totalHeight&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1">// forward arguments and construct station directly in the vector</span>
+<span class="hll"><span class="w">            </span><span class="n">m_stations</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="w"> </span><span class="n">l_name</span><span class="p">,</span><span class="w"> </span><span class="n">l_x</span><span class="p">,</span><span class="w"> </span><span class="n">l_y</span><span class="p">,</span><span class="w"> </span><span class="n">l_path</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now we need a write method which is used to write the current values to the respective csv files of the stations. At the
+moment we only write a timestamp together with the current water level in the csv files. To do this, we enter a pointer
+to the array with the current water levels in the write method. Since we internally calculate with a different number of
+cells than the user provides for the simulation, we first calculate the actual index of the cell in the array from the
+scale and the number of user-defined cells. We then read this value and write it to the corresponding file together with
+a timestamp.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: Stations.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Stations</span><span class="o">::</span><span class="n">write</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">i_totalHeight</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Station</span><span class="o">&amp;</span><span class="w"> </span><span class="n">station</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">m_stations</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// map station index to cell index</span>
+<span class="hll"><span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cellIndexX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">roundf</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">m_scaleX</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">station</span><span class="p">.</span><span class="n">m_x</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cellIndexY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">roundf</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">m_ny</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">m_scaleY</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">station</span><span class="p">.</span><span class="n">m_y</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cellIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_stride</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_cellIndexY</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l_cellIndexX</span><span class="p">;</span>
+</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">l_file</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="w"> </span><span class="n">station</span><span class="p">.</span><span class="n">m_path</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">app</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">l_file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">m_time</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i_totalHeight</span><span class="p">[</span><span class="n">l_cellIndex</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">m_time</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="providing-data-and-output-frequency">
+<h3>2. Providing data and output-frequency<a class="headerlink" href="#providing-data-and-output-frequency" title="Link to this heading"></a></h3>
+<p>We use the submodule <a class="reference external" href="https://github.com/nlohmann/jsonL">json</a> which allows us to use json format for configuration files.
+All we have to do is include the header <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;nlohmann/json.hpp&gt;</span></code> in all
+files in which we want to use json.</p>
+<p>To accomplish a time-step independent output-frequency for the stations we use an extra thread in the <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: main.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="c1">// initialize stations</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Stations</span><span class="w"> </span><span class="n">l_stations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Stations</span><span class="p">(</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">l_ny</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">getStride</span><span class="p">(),</span>
+<span class="w">                                                                  </span><span class="n">l_scaleX</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">l_scaleY</span><span class="w"> </span><span class="p">);</span>
+<span class="c1">// create a thread that runs the stations write function</span>
+<span class="hll"><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="w"> </span><span class="nf">writeStationsThread</span><span class="p">(</span><span class="w"> </span><span class="n">writeStations</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">l_stations</span><span class="p">,</span><span class="w"> </span><span class="n">l_waveProp</span><span class="w"> </span><span class="p">);</span>
+</span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This thread runs the helper function <code class="docutils literal notranslate"><span class="pre">writeStations</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: main.cpp</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">writeStations</span><span class="p">(</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Stations</span><span class="o">*</span><span class="w"> </span><span class="n">stations</span><span class="p">,</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation</span><span class="o">*</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">KILL_THREAD</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">stations</span><span class="o">-&gt;</span><span class="n">write</span><span class="p">(</span><span class="w"> </span><span class="n">solver</span><span class="o">-&gt;</span><span class="n">getTotalHeight</span><span class="p">()</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">stations</span><span class="o">-&gt;</span><span class="n">getOutputFrequency</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The function needs a reference to our initialized Stations object which summarizes and manages the single stations and
+another reference to our WavePropagation (whether 1D or 2D) to get the information about current water height for example.</p>
+<p>We define a variable <code class="docutils literal notranslate"><span class="pre">KILL_THREAD</span></code> at the beginning of our main.cpp with initial value <strong>false</strong> to be able to close
+the thread later. If the first if condition inside the while loop is false we call the write method on our stations with
+the current water heights of our WavePropagation and thus write to the csv files.</p>
+<p>After the main program has finished we set the <code class="docutils literal notranslate"><span class="pre">KILL_THREAD</span></code> variable to <strong>true</strong> and wait for the thread.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;finished time loop&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// free memory</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;freeing memory&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="w"> </span><span class="n">l_setup</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="w"> </span><span class="n">l_waveProp</span><span class="p">;</span>
+
+<span class="hll"><span class="w">    </span><span class="c1">// kill thread</span>
+</span><span class="hll"><span class="w">    </span><span class="n">KILL_THREAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="c1">// wait for thread</span>
+</span><span class="hll"><span class="w">    </span><span class="n">writeStationsThread</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;finished, exiting&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="solver-comparison">
+<h3>3. Solver comparison<a class="headerlink" href="#solver-comparison" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">config.json</span></code> is the same in both cases but the output_frequency of the 1D solver is set to <strong>1</strong> and the output
+frequency of the 2D solver is set to <strong>5</strong> because the computation time for this example is approximately 5 times
+higher on the 2D solver than on the 1D solver.</p>
+<p>X and y are given absolute to the scale (scale x: 100, y: 100), so station 03 with <span class="math notranslate nohighlight">\(x: 50\)</span> and <span class="math notranslate nohighlight">\(y: 50\)</span> is
+exactly in the middle of the simulation.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="s">&quot;output_frequency&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+<span class="w">  </span><span class="s">&quot;stations&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;station01&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;x&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;y&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;station02&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;x&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;y&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;station03&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;x&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;y&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;station04&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;x&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">70</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;y&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;station05&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;x&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;y&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Visualization of the <strong>1D</strong> symmetrical problem: <span class="raw-html"><br></span>
+Rendered with 500 cells</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Stationion</p></td>
+<td><p>01</p></td>
+<td><p>02</p></td>
+<td><p>03</p></td>
+<td><p>04</p></td>
+<td><p>05</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>Position</p></td>
+<td rowspan="2"><p>50</p></td>
+<td rowspan="2"><p>150</p></td>
+<td rowspan="2"><p>250</p></td>
+<td rowspan="2"><p>350</p></td>
+<td rowspan="2"><p>450</p></td>
+</tr>
+<tr class="row-odd"></tr>
+</tbody>
+</table>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_4_2_3_1d.mp4" type="video/mp4">
+    </video>
+</center><p>Visualization of the <strong>2D</strong> symmetrical problem: <span class="raw-html"><br></span>
+Rendered with 500x500 cells</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Stationion</p></td>
+<td><p>01</p></td>
+<td><p>02</p></td>
+<td><p>03</p></td>
+<td><p>04</p></td>
+<td><p>05</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>Position</p></td>
+<td rowspan="2"><p>(50/250)</p></td>
+<td rowspan="2"><p>(150/250)</p></td>
+<td rowspan="2"><p>(250/250)</p></td>
+<td rowspan="2"><p>(350/250)</p></td>
+<td rowspan="2"><p>(450/250)</p></td>
+</tr>
+<tr class="row-odd"></tr>
+</tbody>
+</table>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/task_4_2_3_2d.mp4" type="video/mp4">
+    </video>
+</center><p>In both cases, the water height is 5 m and at all positions within a radius of 10 m around the centre point, the water
+height is 10 m.</p>
+<p><strong>Comparison on 52 data points per station:</strong></p>
+<center>
+    <img src="../_static/photos/task_4_2_3_comparison.png" alt="1D vs. 2D stations">
+</center><p>You can clearly see the symmetrical problem in both cases. The values of 1D and 2D are not exactly the same, but they
+behave very similarly.</p>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_4.html#stations">https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_4.html#stations</a> (19.11.2023)</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bathymetry_boundary_conditions.html" class="btn btn-neutral float-left" title="3. Bathymetry &amp; Boundary Conditions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="large_data_input_output.html" class="btn btn-neutral float-right" title="5. Large Data Input and Output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

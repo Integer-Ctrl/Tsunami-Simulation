@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['wavepropagation_17',['WavePropagation',['../classtsunami__lab_1_1patches_1_1WavePropagation.html',1,'tsunami_lab::patches']]],
-  ['wavepropagation1d_18',['WavePropagation1d',['../classtsunami__lab_1_1patches_1_1WavePropagation1d.html',1,'tsunami_lab::patches::WavePropagation1d'],['../classtsunami__lab_1_1patches_1_1WavePropagation1d.html#a888e18ad0bdf59dd05c05f2dc0f90efb',1,'tsunami_lab::patches::WavePropagation1d::WavePropagation1d()']]],
-  ['write_19',['write',['../classtsunami__lab_1_1io_1_1Csv.html#ac4d89e623fb31db39b1dfbe5fe9edcfe',1,'tsunami_lab::io::Csv']]]
+  ['makenewlevelfromcoarse_0',['MakeNewLevelFromCoarse',['../classtsunami__lab_1_1amr_1_1AMRCoreWavePropagation2d.html#a774867c44b4533c579680c28eca38e55',1,'tsunami_lab::amr::AMRCoreWavePropagation2d']]],
+  ['makenewlevelfromscratch_1',['MakeNewLevelFromScratch',['../classtsunami__lab_1_1amr_1_1AMRCoreWavePropagation2d.html#a57943eba5e3e314e3c892a008a0c7b0c',1,'tsunami_lab::amr::AMRCoreWavePropagation2d']]],
+  ['middlestates1d_2',['middlestates1d',['../classtsunami__lab_1_1setups_1_1MiddleStates1d.html',1,'tsunami_lab::setups::MiddleStates1d'],['../classtsunami__lab_1_1setups_1_1MiddleStates1d.html#ab15340b1070ee2a0f080643212350558',1,'tsunami_lab::setups::MiddleStates1d::MiddleStates1d()']]]
 ];

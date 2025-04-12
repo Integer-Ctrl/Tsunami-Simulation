@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10. Individual Phase &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="11. Adaptive Mesh Refinement" href="amrex.html" />
+    <link rel="prev" title="9. Parallelization" href="parallelization.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. Individual Phase</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#draft">10.1 Draft</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proposal">10.2 Proposal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#project-goals">Project Goals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#approaches">Approaches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-outline">Implementation Outline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#status">10.3 Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">10. Individual Phase</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/individual_phase.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="individual-phase">
+<span id="submissions-individual-phase"></span><h1>10. Individual Phase<a class="headerlink" href="#individual-phase" title="Link to this heading"></a></h1>
+<section id="draft">
+<h2>10.1 Draft<a class="headerlink" href="#draft" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Tsunami Mitigation Strategies</dt><dd><ul>
+<li><p>simulate and assess the impact of various tsunami mitigation strategies</p></li>
+<li><p>algorithms to model the effectiveness of barriers, early warning systems, and evacuation plans</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Multi-resolution Simulation</dt><dd><ul>
+<li><p>support multi-resolution grids</p></li>
+<li><p>data structures and algorithms that efficiently handle varying resolutions in different parts
+of the simulation domain</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Grid masking</dt><dd><ul>
+<li><p>Optimization of the calculation by applying a mask to the changing part of the simulation
+i.e. cells that have no influence on the wave simulation are skipped, e.g. dry cells, standing water</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Real-time Visualization</dt><dd><ul>
+<li><p>real-time visualization using C++ graphics libraries like (OpenGL, SFML or SDL)</p></li>
+<li><p>user-friendly interface to visualize the evolving tsunami simulation</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Explore GPU acceleration using NVIDIA’s CUDA toolkit</dt><dd><ul>
+<li><p>simulation algorithms to take advantage of parallel processing on compatible NVIDIA GPUs,
+enhancing the performance</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Friction</dt><dd><ul>
+<li><p>Adding a friction adjustment to the implementation to obtain more accurate simulation results</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="proposal">
+<h2>10.2 Proposal<a class="headerlink" href="#proposal" title="Link to this heading"></a></h2>
+<section id="introduction">
+<h3>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h3>
+<p>Tsunami simulations require accurate and efficient numerical methods to capture complex wave propagation dynamics.
+Adaptive Mesh Refinement (AMR) is a powerful technique that enhances simulation accuracy by dynamically adjusting the
+mesh resolution based on the evolving wave features.
+In addition, masking improves performance by only updating relevant cells.
+This proposal outlines the goal of implementing AMR in our existing C++ tsunami simulation, using open-source tools, within a four-week timeframe.</p>
+</section>
+<section id="project-goals">
+<h3>Project Goals<a class="headerlink" href="#project-goals" title="Link to this heading"></a></h3>
+<p>The primary goal of this project is to integrate Adaptive Mesh Refinement into our existing tsunami simulation.
+The objectives include:</p>
+<ol class="arabic">
+<li><p>Dynamic Mesh Resolution:</p>
+<blockquote>
+<div><p>Implement a hierarchical mesh structure that allows dynamic refinement and coarsening based on the local wave characteristics.</p>
+</div></blockquote>
+</li>
+<li><p>Error Estimation:</p>
+<blockquote>
+<div><p>Develop a method to estimate error metrics at each mesh cell, guiding the adaptive refinement process.</p>
+</div></blockquote>
+</li>
+<li><p>Efficient Data Handling:</p>
+<blockquote>
+<div><p>Design strategies to efficiently manage data structures for adaptive grids while minimizing computational overhead.</p>
+</div></blockquote>
+</li>
+<li><p>Verification and Validation:</p>
+<blockquote>
+<div><p>Ensure the accuracy of the simulation results by validating against our earlier simulations.</p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="approaches">
+<h3>Approaches<a class="headerlink" href="#approaches" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Adaptive Mesh Structure:</p>
+<blockquote>
+<div><p>Utilize the <a class="reference external" href="https://amrex-codes.github.io/amrex/">AMReX</a> library to implement adaptive mesh structures efficiently.
+AMReX is an open-source framework designed for AMR applications and is well-suited for scientific simulations.</p>
+</div></blockquote>
+</li>
+<li><p>Error Estimation:</p>
+<blockquote>
+<div><p>Implement error estimation algorithms to assess the accuracy of the simulation at different mesh resolutions.
+Develop interpolation methods for smooth data transfer between mesh levels.</p>
+</div></blockquote>
+</li>
+<li><p>Data Management:</p>
+<blockquote>
+<div><p>Utilize the AMReX data structures to efficiently handle adaptive grids.
+Explore strategies such as block-structured AMR to optimize memory usage and computational performance.</p>
+</div></blockquote>
+</li>
+<li><p>Visualization:</p>
+<blockquote>
+<div><p>Enhance visualization capabilities by integrating ParaView with AMReX, ensuring proper representation of refined
+meshes and visualizing adaptive grid structures.</p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="implementation-outline">
+<h3>Implementation Outline<a class="headerlink" href="#implementation-outline" title="Link to this heading"></a></h3>
+<p><strong>Week 1-2: Familiarization and Setup</strong></p>
+<p>Familiarize ourself with the AMReX library, exploring its capabilities and documentation.
+Integrate AMReX into our existing C++ tsunami simulation codebase.
+Develop a prototype with a static adaptive mesh to verify compatibility and setup.</p>
+<p><strong>Week 3: Error Estimation and Refinement</strong></p>
+<p>Implement error estimation techniques to guide adaptive mesh refinement.
+Integrate error estimation into the simulation loop.
+Verify the correctness of error estimation by comparing results with non-adaptive simulations.</p>
+<p><strong>Week 4: Optimization and Validation</strong></p>
+<p>Optimize data structures and computation for efficiency and apply masking.
+Validate the simulation results with established benchmarks.
+Implement ParaView integration for visualization of adaptive meshes.</p>
+</section>
+<section id="conclusion">
+<h3>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h3>
+<p>The successful implementation of Adaptive Mesh Refinement will enhance the accuracy and efficiency of our tsunami simulation.
+Utilizing the AMReX library and following the outlined steps, this project aims to achieve these goals within a four-week timeframe.</p>
+</section>
+</section>
+<section id="status">
+<h2>10.3 Status<a class="headerlink" href="#status" title="Link to this heading"></a></h2>
+<p>During the first week we read a lot of the AMReX documentation to get up to speed. AMReX provides a lot of documentation
+and also tutorials on first projects, so this was our main source of information as there aren’t many tutorials elsewhere
+on the web. Unfortunately, the API documentation is very sketchy. We were forced to study the AMReX source code and
+tutorials in detail to understand the workflow of this framework.</p>
+<p>The second week’s priority was to implement AMReX into our existing project. After attempting to do so, we decided to
+change our approach and integrate our logic into the AMReX framework. Our best practice strategy involved utilizing the
+AMReX data structures and functions, resulting in a reduction of our <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> file and the creation of
+<code class="docutils literal notranslate"><span class="pre">AMRCoreWavePropagation2d.cpp</span></code>, where our logic is combined with AMReX.  However, we encountered difficulties due to
+insufficient documentation at certain stages, which required us to troubleshoot the issue ourselves.</p>
+<p>In the end, we are happy to say that we reached our milestone on time!</p>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="parallelization.html" class="btn btn-neutral float-left" title="9. Parallelization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="amrex.html" class="btn btn-neutral float-right" title="11. Adaptive Mesh Refinement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

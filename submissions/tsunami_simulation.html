@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Tsunami Simulations &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Checkpointing and Coarse Output" href="checkpoint_coarse_output.html" />
+    <link rel="prev" title="5. Large Data Input and Output" href="large_data_input_output.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Tsunami Simulations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#m-8-8-chile-event">6.1. 2010 M 8.8 Chile Event</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#visualization-of-the-input-data">1. Visualization of the input data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-of-the-tsunami-event-chile">2. Simulation of the tsunami event (Chile)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#m-9-1-tohoku-event">6.2. 2011 M 9.1 Tohoku Event</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-of-the-tsunami-event-tohoku">1. Simulation of the tsunami event (Tohoku)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#soma">2. Sõma</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">6. Tsunami Simulations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/tsunami_simulation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tsunami-simulations">
+<span id="submissions-tsunami-simulation"></span><h1>6. Tsunami Simulations<a class="headerlink" href="#tsunami-simulations" title="Link to this heading"></a></h1>
+<section id="m-8-8-chile-event">
+<h2>6.1. 2010 M 8.8 Chile Event<a class="headerlink" href="#m-8-8-chile-event" title="Link to this heading"></a></h2>
+<section id="visualization-of-the-input-data">
+<h3>1. Visualization of the input data<a class="headerlink" href="#visualization-of-the-input-data" title="Link to this heading"></a></h3>
+<center>
+    <img src="../_static/photos/task_6_1_1.png" alt="Visualization of the input data">
+</center></section>
+<section id="simulation-of-the-tsunami-event-chile">
+<h3>2. Simulation of the tsunami event (Chile)<a class="headerlink" href="#simulation-of-the-tsunami-event-chile" title="Link to this heading"></a></h3>
+<p>Scale in x-dimension predetermined with <span class="math notranslate nohighlight">\(x: 3500000\)</span> <span class="raw-html"><br></span>
+Scale in y-dimension predetermined with <span class="math notranslate nohighlight">\(y: 3000000\)</span></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\text{l_endTime} = \frac{\text{scale in x direction}}{\lambda} = \frac{\text{scale in x direction}}{\sqrt{g\cdot h}}\\\lambda = 284.8 \approx 285\,\frac{m}{s}\\\text{l_endTime} = \frac{3500000\,m}{285\,\frac{m}{s}} = 12280.702\,s\end{aligned}\end{align} \]</div>
+<p>Since lambda is only the maximum value and this is not the corresponding value for the wave over the entire time course,
+we use the calculated value only as an order of magnitude and add a generous time span.
+The bottom line is that we use 15000 seconds.</p>
+<p>Cell size: <strong>1000m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{3500000}{1000}=3500\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{3000000}{1000}=3000\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/chile_1000.mp4" type="video/mp4">
+    </video>
+</center><p>Cell size: <strong>500m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{3500000}{500}=7000\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{3000000}{500}=6000\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/chile_500.mp4" type="video/mp4">
+    </video>
+</center><p>Cell size: <strong>250m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{3500000}{250}=14000\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{3000000}{250}=12000\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/chile_250.mp4" type="video/mp4">
+    </video>
+</center></section>
+</section>
+<section id="m-9-1-tohoku-event">
+<h2>6.2. 2011 M 9.1 Tohoku Event<a class="headerlink" href="#m-9-1-tohoku-event" title="Link to this heading"></a></h2>
+<section id="simulation-of-the-tsunami-event-tohoku">
+<span id="submissions-tsunami-simulation-tohoku"></span><h3>1. Simulation of the tsunami event (Tohoku)<a class="headerlink" href="#simulation-of-the-tsunami-event-tohoku" title="Link to this heading"></a></h3>
+<p>Scale in x-dimension predetermined with <span class="math notranslate nohighlight">\(x: 2700000\)</span> <span class="raw-html"><br></span>
+Scale in y-dimension predetermined with <span class="math notranslate nohighlight">\(y: 1500000\)</span></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\text{l_endTime} = \frac{\text{scale in x direction}}{\lambda} = \frac{\text{scale in x direction}}{\sqrt{g\cdot h}}\\\lambda = 307.3 \approx 308\,\frac{m}{s}\\\text{l_endTime} = \frac{2700000\,m}{308\,\frac{m}{s}} = 8766.234\,s\end{aligned}\end{align} \]</div>
+<p>Since lambda is only the maximum value and this is not the corresponding value for the wave over the entire time course,
+we use the calculated value only as an order of magnitude and add a generous time span.
+The bottom line is that we use 13000 seconds.</p>
+<p>Cell size: <strong>2000m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{2000}=1350\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{2000}=750\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_2000.mp4" type="video/mp4">
+    </video>
+</center><p>Cell size: <strong>1000m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=2700\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=1500\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_1000.mp4" type="video/mp4">
+    </video>
+</center><p>Cell size: <strong>500m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{500}=5400\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{500}=3000\)</span></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_500.mp4" type="video/mp4">
+    </video>
+</center></section>
+<section id="soma">
+<h3>2. Sõma<a class="headerlink" href="#soma" title="Link to this heading"></a></h3>
+<p>“On 11 March 2011, at 14:46 JST (05:46 UTC), an undersea megathrust earthquake of magnitude 9.0-9.1 occurred in the
+Pacific Ocean, 72 km east of the Oshika Peninsula in the Tōhoku region. It lasted about six minutes and generated a
+tsunami.”<a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>“Sõma is a town in Japan about 54.6 km north and 127.6 km west of the March 11, 2011, M 9.1 Tohoku event’s epicenter.
+We are interested in the time between the earthquake rupture and the arrival of the first tsunami waves in Sõma.”<a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<p>“On 13 March 2011, the Japan Meteorological Agency (JMA) published details of tsunami observations recorded around the
+coastline of Japan following the earthquake. These observations included […] that the water height in Sõma was
+<span class="math notranslate nohighlight">\(7.3\,m\)</span> or even higher at around 15:50 JST (06:50 UTC).”<a class="footnote-reference brackets" href="#id5" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> 14:46 JST - 15:50 JST is a period of <strong>01:04h</strong> or
+<strong>64 minutes</strong>.</p>
+<p>The rule of thumb <span class="math notranslate nohighlight">\(\lambda \approx \sqrt{gh}\)</span> with an epicenter height of <span class="math notranslate nohighlight">\(h = 927.53\,m\)</span> returns a lambda of <span class="math notranslate nohighlight">\(\lambda \approx 95.663\,\frac{m}{s}\)</span>.
+The arrival time can be calculated <span class="math notranslate nohighlight">\(\frac{\text{distance}}{\text{wave speed}} = \frac{138791\,m}{95.663\,\frac{m}{s}} \approx 1451\,s\)</span>.</p>
+<p>Our epicenter is not the origin of our coordinate system.
+Therefore, we need to calculate the position of the station in relation to the lower left corner of the data input.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{x: } -127956.17 - -200000 = 72043.83\\
+\text{y: } -54518.72 - -750000 = 695481.28\end{split}\]</div>
+<p>Our station with the coordinates (72043.83, 695481.28) w.r.t.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: ../resources/config.json</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;output_frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;stations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soma&quot;</span><span class="p">,</span>
+<span class="hll"><span class="w">      </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">72043.83</span><span class="p">,</span>
+</span><span class="hll"><span class="w">      </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">695481.28</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>records that the tsunami wave arrived at the station off the coast of Sõma after 50 minutes (3000 seconds). This can
+also be clearly seen in the animation below. The station is marked with a pink dot. Since the 64 minutes date an
+approximate maximum of the water height, we can use our 50 minutes as the arrival time of the wave.</p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_station_500.mp4" type="video/mp4">
+    </video>
+</center><table class="docutils align-default" id="id6">
+<caption><span class="caption-text">snippet of Sõma station output</span><a class="headerlink" href="#id6" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>simulationTime</p></th>
+<th class="head"><p>totalHeight</p></th>
+<th class="head"><p>momentumX</p></th>
+<th class="head"><p>momentumY</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2042.8</p></td>
+<td><p>-0.282932</p></td>
+<td><p>-0.547347</p></td>
+<td><p>-0.00366778</p></td>
+</tr>
+<tr class="row-odd"><td><p>2101.51</p></td>
+<td><p>-0.247034</p></td>
+<td><p>-0.593376</p></td>
+<td><p>-0.00786692</p></td>
+</tr>
+<tr class="row-even"><td><p>2160.21</p></td>
+<td><p>-0.207596</p></td>
+<td><p>-0.650629</p></td>
+<td><p>-0.011954</p></td>
+</tr>
+<tr class="row-odd"><td><p>2221.84</p></td>
+<td><p>-0.161301</p></td>
+<td><p>-0.726299</p></td>
+<td><p>-0.0158865</p></td>
+</tr>
+<tr class="row-even"><td><p>2280.54</p></td>
+<td><p>-0.111267</p></td>
+<td><p>-0.816934</p></td>
+<td><p>-0.0189854</p></td>
+</tr>
+<tr class="row-odd"><td><p>2342.18</p></td>
+<td><p>-0.0508251</p></td>
+<td><p>-0.935998</p></td>
+<td><p>-0.0212122</p></td>
+</tr>
+<tr class="row-even"><td><p>2400.88</p></td>
+<td><p>0.0161152</p></td>
+<td><p>-1.07648</p></td>
+<td><p>-0.0219741</p></td>
+</tr>
+<tr class="row-odd"><td><p>2462.52</p></td>
+<td><p>0.0985336</p></td>
+<td><p>-1.25697</p></td>
+<td><p>-0.0209047</p></td>
+</tr>
+<tr class="row-even"><td><p>2521.22</p></td>
+<td><p>0.190916</p></td>
+<td><p>-1.46406</p></td>
+<td><p>-0.017658</p></td>
+</tr>
+<tr class="row-odd"><td><p>2582.86</p></td>
+<td><p>0.30517</p></td>
+<td><p>-1.7215</p></td>
+<td><p>-0.0113819</p></td>
+</tr>
+<tr class="row-even"><td><p>2641.56</p></td>
+<td><p>0.432955</p></td>
+<td><p>-2.00599</p></td>
+<td><p>-0.00217989</p></td>
+</tr>
+<tr class="row-odd"><td><p>2700.26</p></td>
+<td><p>0.581575</p></td>
+<td><p>-2.32764</p></td>
+<td><p>0.0106277</p></td>
+</tr>
+<tr class="row-even"><td><p>2761.89</p></td>
+<td><p>0.762175</p></td>
+<td><p>-2.70062</p></td>
+<td><p>0.028352</p></td>
+</tr>
+<tr class="row-odd"><td><p>2820.6</p></td>
+<td><p>0.958899</p></td>
+<td><p>-3.08081</p></td>
+<td><p>0.0496001</p></td>
+</tr>
+<tr class="row-even"><td><p>2882.23</p></td>
+<td><p>1.19188</p></td>
+<td><p>-3.49183</p></td>
+<td><p>0.0765755</p></td>
+</tr>
+<tr class="row-odd"><td><p>2940.93</p></td>
+<td><p>1.43802</p></td>
+<td><p>-3.87582</p></td>
+<td><p>0.106504</p></td>
+</tr>
+<tr class="row-even"><td><p>3002.57</p></td>
+<td><p>1.71935</p></td>
+<td><p>-4.246</p></td>
+<td><p>0.141799</p></td>
+</tr>
+<tr class="row-odd"><td><p>3061.27</p></td>
+<td><p>2.00484</p></td>
+<td><p>-4.53972</p></td>
+<td><p>0.178126</p></td>
+</tr>
+<tr class="row-even"><td><p>3122.91</p></td>
+<td><p>2.3166</p></td>
+<td><p>-4.75527</p></td>
+<td><p>0.217654</p></td>
+</tr>
+<tr class="row-odd"><td><p>3181.61</p></td>
+<td><p>2.61723</p></td>
+<td><p>-4.84415</p></td>
+<td><p>0.254904</p></td>
+</tr>
+<tr class="row-even"><td><p>3240.31</p></td>
+<td><p>2.91262</p></td>
+<td><p>-4.79635</p></td>
+<td><p>0.289841</p></td>
+</tr>
+<tr class="row-odd"><td><p>3301.95</p></td>
+<td><p>3.20671</p></td>
+<td><p>-4.58207</p></td>
+<td><p>0.321873</p></td>
+</tr>
+<tr class="row-even"><td><p>3360.65</p></td>
+<td><p>3.46133</p></td>
+<td><p>-4.2152</p></td>
+<td><p>0.345962</p></td>
+</tr>
+<tr class="row-odd"><td><p>3422.28</p></td>
+<td><p>3.69153</p></td>
+<td><p>-3.66392</p></td>
+<td><p>0.362758</p></td>
+</tr>
+<tr class="row-even"><td><p>3480.98</p></td>
+<td><p>3.86675</p></td>
+<td><p>-2.99602</p></td>
+<td><p>0.369385</p></td>
+</tr>
+<tr class="row-odd"><td><p>3542.62</p></td>
+<td><p>3.99699</p></td>
+<td><p>-2.1708</p></td>
+<td><p>0.365737</p></td>
+</tr>
+<tr class="row-even"><td><p>3601.32</p></td>
+<td><p>4.06479</p></td>
+<td><p>-1.29791</p></td>
+<td><p>0.351979</p></td>
+</tr>
+<tr class="row-odd"><td><p>3660.02</p></td>
+<td><p>4.07486</p></td>
+<td><p>-0.373807</p></td>
+<td><p>0.328553</p></td>
+</tr>
+<tr class="row-even"><td><p>3721.66</p></td>
+<td><p>4.02248</p></td>
+<td><p>0.614798</p></td>
+<td><p>0.294375</p></td>
+</tr>
+<tr class="row-odd"><td><p>3780.36</p></td>
+<td><p>3.91392</p></td>
+<td><p>1.54078</p></td>
+<td><p>0.253819</p></td>
+</tr>
+<tr class="row-even"><td><p>3842</p></td>
+<td><p>3.7415</p></td>
+<td><p>2.46582</p></td>
+<td><p>0.204207</p></td>
+</tr>
+<tr class="row-odd"><td><p>3900.7</p></td>
+<td><p>3.5261</p></td>
+<td><p>3.27803</p></td>
+<td><p>0.151764</p></td>
+</tr>
+<tr class="row-even"><td><p>3962.33</p></td>
+<td><p>3.25212</p></td>
+<td><p>4.03925</p></td>
+<td><p>0.0928446</p></td>
+</tr>
+<tr class="row-odd"><td><p>4021.03</p></td>
+<td><p>2.95197</p></td>
+<td><p>4.66439</p></td>
+<td><p>0.034583</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>From <a class="reference external" href="https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami">https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami</a> (30.11.2023)</p>
+</aside>
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>From <a class="reference external" href="https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_4.html#stations">https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_4.html#stations</a> (30.11.2023)</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="large_data_input_output.html" class="btn btn-neutral float-left" title="5. Large Data Input and Output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="checkpoint_coarse_output.html" class="btn btn-neutral float-right" title="7. Checkpointing and Coarse Output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

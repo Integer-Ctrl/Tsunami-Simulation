@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7. Checkpointing and Coarse Output &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="8. Optimization" href="optimization.html" />
+    <link rel="prev" title="6. Tsunami Simulations" href="tsunami_simulation.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finite_volume_discretization.html">2. Finite Volume Discretization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Checkpointing and Coarse Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#checkpointing">7.1. Checkpointing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#extended-netcdf-writer">1. Extended netCDF writer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup-checkpoint">2. Setup Checkpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-of-checkpointing">3. Test of checkpointing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auto-loading-a-checkpoint">4. Auto Loading a Checkpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#coarse-output">7.2 Coarse Output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modified-output-writer">1. Modified output writer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tohoku-earthquake-and-tsunami-event">2. Tohoku earthquake and tsunami event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bonus">3. Bonus</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">7. Checkpointing and Coarse Output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/checkpoint_coarse_output.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="checkpointing-and-coarse-output">
+<span id="submissions-checkpoint-coarse-output"></span><h1>7. Checkpointing and Coarse Output<a class="headerlink" href="#checkpointing-and-coarse-output" title="Link to this heading"></a></h1>
+<section id="checkpointing">
+<h2>7.1. Checkpointing<a class="headerlink" href="#checkpointing" title="Link to this heading"></a></h2>
+<section id="extended-netcdf-writer">
+<h3>1. Extended netCDF writer<a class="headerlink" href="#extended-netcdf-writer" title="Link to this heading"></a></h3>
+<p>The writer for a checkpoint must be extended by the following variables:
+<code class="docutils literal notranslate"><span class="pre">commandLine</span></code>, <code class="docutils literal notranslate"><span class="pre">writeCount</span></code> and in addition to simplify things by <code class="docutils literal notranslate"><span class="pre">hMax</span></code>.</p>
+<p>The variable <code class="docutils literal notranslate"><span class="pre">commandLine</span></code> stores the user input that is to be reapplied from a checkpoint when the simulation is started.</p>
+<p><code class="docutils literal notranslate"><span class="pre">writeCount</span></code> stores the number of writes made to the solution file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hMax</span></code> stores the hMax value that was calculated at the start of the simulation. This is needed to calculate the same time steps and the same time scaling.</p>
+<p>First, the constructor must be changed to implement the functionality for the checkpoint.
+This involves defining further variables and setting data for all precalculated variables:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:   NetCdf.cpp</span>
+<span class="c1">/// Header: NetCdf.h</span>
+<span class="c1">/// Test:   NetCdf.test.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">NetCdf</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">filePath</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ny</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_k</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleX</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleY</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_stride</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span>
+<span class="w">                                 </span><span class="kt">bool</span><span class="w"> </span><span class="n">useSpherical</span><span class="p">,</span>
+<span class="w">                                 </span><span class="kt">bool</span><span class="w"> </span><span class="n">useMomenta</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">commandLine</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">hMax</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">isReadMode</span><span class="p">(</span><span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">isCheckpoint</span><span class="p">(</span><span class="w"> </span><span class="n">commandLine</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="n">commandLine</span><span class="p">(</span><span class="w"> </span><span class="n">commandLine</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">isCheckpoint</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                            </span><span class="s">&quot;commandLine&quot;</span><span class="p">,</span>
+</span><span class="w">                            </span><span class="n">NC_CHAR</span><span class="p">,</span>
+<span class="w">                            </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">strDimID</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">commandLineID</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;commandLine&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                            </span><span class="s">&quot;writeCount&quot;</span><span class="p">,</span>
+</span><span class="w">                            </span><span class="n">NC_INT</span><span class="p">,</span>
+<span class="w">                            </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">m_dimTimeId</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">m_writeCountId</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writeCount&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_def_var</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="hll"><span class="w">                            </span><span class="s">&quot;hMax&quot;</span><span class="p">,</span>
+</span><span class="w">                            </span><span class="n">NC_FLOAT</span><span class="p">,</span>
+<span class="w">                            </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">m_dimTimeId</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">m_hMaxID</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hMax&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">isCheckpoint</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">count</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">strlen</span><span class="p">(</span><span class="w"> </span><span class="n">commandLine</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_vara</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">commandLineID</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">start</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">count</span><span class="p">,</span>
+<span class="hll"><span class="w">                            </span><span class="n">commandLine</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putCommandLine&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_var1_float</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">m_hMaxID</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">index</span><span class="p">,</span>
+<span class="hll"><span class="w">                                </span><span class="o">&amp;</span><span class="n">hMax</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putHMax&quot;</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The write functions must also be updated.
+It now takes an additional argument <code class="docutils literal notranslate"><span class="pre">writeCount</span></code> and is intended to write all changing variables.
+It always synchronizes with the file system with <code class="docutils literal notranslate"><span class="pre">ny_sync</span></code> at every write call, so that the data is not damaged in the event of a crash.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::_write</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumY</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">stride</span><span class="p">,</span>
+<span class="w">                                      </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">writeCount</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">m_writeCountId</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">indexNC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">ullWriteCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">writeCount</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc_put_var1_ulonglong</span><span class="p">(</span><span class="w"> </span><span class="n">m_ncId</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                       </span><span class="n">m_writeCountId</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                       </span><span class="n">indexNC</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                       </span><span class="o">&amp;</span><span class="n">ullWriteCount</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="n">checkNcErr</span><span class="p">(</span><span class="w"> </span><span class="n">l_err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;putWriteCount&quot;</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[...]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Both the constructor and the write function are combined in a constructor call for a checkpoint creation.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: NetCdf.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">NetCdf</span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">filePath</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_ny</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleX</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaleY</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_stride</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">commandLine</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">hMax</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumY</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">t_real</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">writeCount</span><span class="w"> </span><span class="p">)</span>
+<span class="hll"><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">NetCdf</span><span class="p">(</span><span class="w"> </span><span class="n">filePath</span><span class="p">,</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span><span class="w"> </span><span class="n">l_ny</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">l_scaleX</span><span class="p">,</span><span class="w"> </span><span class="n">l_scaleY</span><span class="p">,</span><span class="w"> </span><span class="n">l_stride</span><span class="p">,</span><span class="w"> </span><span class="n">bathymetry</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">commandLine</span><span class="p">,</span><span class="w"> </span><span class="n">hMax</span><span class="w"> </span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="n">_write</span><span class="p">(</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">,</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span><span class="w"> </span><span class="n">momentumY</span><span class="p">,</span><span class="w"> </span><span class="n">l_nx</span><span class="p">,</span><span class="w"> </span><span class="n">l_ny</span><span class="p">,</span><span class="w"> </span><span class="n">l_stride</span><span class="p">,</span><span class="w"> </span><span class="n">writeCount</span><span class="w"> </span><span class="p">);</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-checkpoint">
+<h3>2. Setup Checkpoint<a class="headerlink" href="#setup-checkpoint" title="Link to this heading"></a></h3>
+<p>The first step is to read the checkpoint netCdf file with the required variables to start the simulation.
+For this purpose, an array with variables and an array with the same size for the read data are created.
+Both definitions of <code class="docutils literal notranslate"><span class="pre">variables</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code> can be found in CheckPoint.h.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:   CheckPoint.cpp</span>
+<span class="c1">/// Header: CheckPoint.h</span>
+<span class="c1">/// Test:   CheckPoint.test.cpp</span>
+<span class="hll"><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">Checkpoint</span><span class="o">::</span><span class="n">variables</span><span class="p">[</span><span class="mi">8</span><span class="p">]{</span><span class="w"> </span><span class="s">&quot;totalHeight&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bathymetry&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;momentumX&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;momentumY&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;time&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;commandLine&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writeCount&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hMax&quot;</span><span class="w"> </span><span class="p">};</span>
+</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">Checkpoint</span><span class="o">::</span><span class="n">Checkpoint</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_idx</span><span class="o">&amp;</span><span class="w"> </span><span class="n">writeCount</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">t_real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hMax</span><span class="p">,</span>
+<span class="w">                                             </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">argv</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// reading the checkpoint</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="p">();</span>
+<span class="hll"><span class="w">    </span><span class="n">reader</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="w"> </span><span class="n">filepath</span><span class="p">,</span><span class="w"> </span><span class="n">variables</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="p">[...]</span>
+</pre></div>
+</div>
+<p>Then the length and type of the read data are checked to confirm correct usage.
+In addition, the commandLine variable is broken down into C-like arguments that are stored in a vector to mimic the user input.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// FILE: CheckPoint.cpp</span>
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="w">    </span><span class="c1">// check totalHeight, bathymetry, momentumX, momentumY</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">length</span>
+</span><span class="hll"><span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">length</span>
+</span><span class="hll"><span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">red</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: Size is not equal! The size of totalHeight, bathymetry, momentumX or momentumY should be the same. Aborting!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span>
+</span><span class="hll"><span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">FLOAT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">red</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: Not of type float! The type of totalHeight, bathymetry, momentumX or momentumY should be float. Aborting!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">[...]</span>
+
+<span class="w">    </span><span class="c1">// check and convert commandLine to C like argument list</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">length</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">red</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: Could not read checkpoint because there are no values to read. Aborting!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="hll"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">NetCdf</span><span class="o">::</span><span class="n">CHAR</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">red</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ERROR: Could not read checkpoint because the type is wrong. Aborting!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">wordStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">wordLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">            </span><span class="p">{</span>
+</span><span class="hll"><span class="w">                </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">wordLength</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c1">// skip double spaces</span>
+</span><span class="hll"><span class="w">                </span><span class="p">{</span>
+</span><span class="hll"><span class="w">                    </span><span class="n">wordStart</span><span class="o">++</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                    </span><span class="k">continue</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="p">}</span>
+</span><span class="hll"><span class="w">                </span><span class="n">argv</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text</span><span class="p">[</span><span class="n">wordStart</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+</span><span class="hll"><span class="w">                </span><span class="n">wordStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="n">wordLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+</span><span class="hll"><span class="w">            </span><span class="p">}</span>
+</span><span class="hll"><span class="w">            </span><span class="n">wordLength</span><span class="o">++</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="p">}</span>
+</span><span class="hll"><span class="w">        </span><span class="n">argv</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text</span><span class="p">[</span><span class="n">wordStart</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In order to pass the data to <code class="docutils literal notranslate"><span class="pre">patches::WavePropagation</span></code> without unnecessary conversions, the get functions expect index instead of coordinates.
+To pass the index instead of the coordinates, the size of a cell in main.cpp is set to one.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: CheckPoint.cpp</span>
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="nf">tsunami_lab::setups::Checkpoint::getBathymetry</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">indexX</span><span class="p">,</span>
+<span class="w">                                                                    </span><span class="n">t_real</span><span class="w"> </span><span class="n">indexY</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexY</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">indexX</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">array</span><span class="w"> </span><span class="p">)[</span><span class="n">index</span><span class="p">];</span>
+</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="test-of-checkpointing">
+<h3>3. Test of checkpointing<a class="headerlink" href="#test-of-checkpointing" title="Link to this heading"></a></h3>
+<p>When starting the solver, the following line is displayed before the simulation settings are printed:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Checking for Checkpoints: No checkpoint found!
+</pre></div>
+</div>
+<p>When a checkpoint is created, the following lines are displayed in the console:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span> writing to &#39;solutions/new_checkpoint&#39;
+finished writing to &#39;solutions/new_checkpoint&#39;. Use ncdump to view its contents.
+</pre></div>
+</div>
+<p>In the event of a crash and a restart of the simulation from the checkpoint, the first line changes to the following.
+The settings are also printed out again for the user to check.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Checking for Checkpoints: Loading checkpoint!
+</pre></div>
+</div>
+</section>
+<section id="auto-loading-a-checkpoint">
+<h3>4. Auto Loading a Checkpoint<a class="headerlink" href="#auto-loading-a-checkpoint" title="Link to this heading"></a></h3>
+<p>The main program checks whether a checkpoint already exists next to the solution.
+If this is the case, the checkpoint is loaded and argv is overwritten so that any user input is discarded.
+Otherwise, the simulation is started normally with user-defined inputs.
+When a checkpoint is written, the old checkpoint is retained and is only deleted after the new checkpoint has been written.
+This ensures the stability of the checkpoint creation process.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: main.cpp</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">checkpointPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SOLUTION_FOLDER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/checkpoint.nc&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">parsedArgv</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="w"> </span><span class="n">checkpointPath</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">green</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Loading checkpoint!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">l_setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">Checkpoint</span><span class="p">(</span><span class="w"> </span><span class="n">checkpointPath</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span>
+<span class="w">                                                   </span><span class="n">l_writeCount</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">l_simTime</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">checkpointHMax</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">parsedArgv</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">i_argc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parsedArgv</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="n">i_argv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parsedArgv</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+<span class="w">    </span><span class="n">useCheckpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">green</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;No checkpoint found!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="coarse-output">
+<h2>7.2 Coarse Output<a class="headerlink" href="#coarse-output" title="Link to this heading"></a></h2>
+<section id="modified-output-writer">
+<h3>1. Modified output writer<a class="headerlink" href="#modified-output-writer" title="Link to this heading"></a></h3>
+<p>To modify the output recorder so that it averages several neighbouring cells of the calculation grid into one cell of
+the output file, we introduce the helper function <code class="docutils literal notranslate"><span class="pre">averageSeveral</span></code>. The idea is to add the values of the <strong>l_k</strong> many
+high-resolution cells in x and y direction and then average them by dividing the sum by <strong>l_k2</strong> at the end. The whole thing
+can then be done analogue for the height and both moments. (l_k is set in the constructor)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File:   NetCdf.cpp</span>
+<span class="c1">/// Header: NetCdf.h</span>
+<span class="c1">/// Test:   NetCdf.test.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::io::NetCdf::averageSeveral</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span>
+<span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">,</span>
+<span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumX</span><span class="p">,</span>
+<span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">momentumY</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_nx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_ny</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_k2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_k</span><span class="p">;</span>
+
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>l_size</strong> is the new size of the arrays with the reduced number of cells</p></li>
+<li><p><strong>l_index</strong> is the current calculated index of the new array</p></li>
+<li><p><strong>l_k2</strong> is the number of cells that are joined together</p></li>
+</ul>
+<p>For the implementation, we iterate over our matrix of cells (taking the stride into account, of course). The two outer
+loops iterate roughly over the matrix. This means that these two loops represent cell blocks of size
+<span class="math notranslate nohighlight">\(l_k \cdot l_k\)</span>. Once in x and once in y direction.</p>
+<p>The inner two loops then iterate together over the elements in x and y direction of the cell block. The values of the
+individual cells of a cell block are then added together inside.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="hll"><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_singleCellny</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">m_k</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m_singleCellnx</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">m_k</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_k</span><span class="p">;</span><span class="w"> </span><span class="n">i_y</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_k</span><span class="p">;</span><span class="w"> </span><span class="n">i_x</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+</span><span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">l_avgHeight</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">                </span><span class="n">l_avgMomentumX</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">momentumX</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">                </span><span class="n">l_avgMomentumY</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">momentumY</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>As you can see, we have the variables <code class="docutils literal notranslate"><span class="pre">m_nx,</span> <span class="pre">m_ny</span> <span class="pre">and</span> <span class="pre">m_stride</span></code>. Similarly, we have
+<code class="docutils literal notranslate"><span class="pre">m_singleCellnx,</span> <span class="pre">m_singleCellny</span> <span class="pre">and</span> <span class="pre">m_singleCellStride</span></code>. This is because we have to distinguish between the number a
+of high-resolution cells and the number of cells after we have made the summarization. The variables with the prefix
+<strong>singleCell</strong> are the values for the original numbers and those without the prefix for the summarised numbers.</p>
+<p>The average values must then be divided by the number of cells in a block (<strong>l_k2</strong>) and added to the corresponding array.
+It is important to zero the average values again and increase the index afterwards.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m_k</span><span class="p">;</span><span class="w"> </span><span class="n">i_x</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">l_avgHeight</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">totalHeight</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">                </span><span class="n">l_avgMomentumX</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">momentumX</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">                </span><span class="n">l_avgMomentumY</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">momentumY</span><span class="p">[(</span><span class="w"> </span><span class="n">i_y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_singleCellStride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i_x</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="hll"><span class="w">        </span><span class="c1">// write combined cell to arrays</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_totalHeight</span><span class="p">[</span><span class="n">l_index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_avgHeight</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">l_k2</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_momentumX</span><span class="p">[</span><span class="n">l_index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_avgMomentumX</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">l_k2</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_momentumY</span><span class="p">[</span><span class="n">l_index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_avgMomentumY</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">l_k2</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_index</span><span class="o">++</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="c1">// reset average values</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_avgHeight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_avgMomentumX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="hll"><span class="w">        </span><span class="n">l_avgMomentumY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After we have also exited the fourth loop, we call the internal <code class="docutils literal notranslate"><span class="pre">_write</span></code> function with our reduced arrays and pass them.
+Of course, dont forget to delete the arrays.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="n">_write</span><span class="p">(</span><span class="w"> </span><span class="n">simulationTime</span><span class="p">,</span><span class="w"> </span><span class="n">l_totalHeight</span><span class="p">,</span><span class="w"> </span><span class="n">l_momentumX</span><span class="p">,</span><span class="w"> </span><span class="n">l_momentumY</span><span class="p">,</span><span class="w"> </span><span class="n">m_nx</span><span class="p">,</span><span class="w"> </span><span class="n">m_ny</span><span class="p">,</span><span class="w"> </span><span class="n">m_stride</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">l_totalHeight</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">l_momentumX</span><span class="p">;</span>
+<span class="w">    </span><span class="k">delete</span><span class="p">[]</span><span class="w"> </span><span class="n">l_momentumY</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="tohoku-earthquake-and-tsunami-event">
+<h3>2. Tohoku earthquake and tsunami event<a class="headerlink" href="#tohoku-earthquake-and-tsunami-event" title="Link to this heading"></a></h3>
+<p>Cell size: <strong>50m</strong></p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{50}=54000\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{50}=30000\)</span></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We have selected an l_k of 5 so that a total of 25 cells are merged into one in the visualisation. Accordingly,
+the cell size in the video is 250 metres.</p>
+</div>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_50_5.mp4" type="video/mp4">
+    </video>
+</center><p>The video is the visualisation of the first 10 seconds of our tsunami simulation. This period is of course too short to
+recognise changes in the tsunami. The reason for the short video is the simulation time. We needed just over <strong>8 hours</strong>
+on LeChuck to calculate 10 seconds.</p>
+<a class="reference internal image-reference" href="../_images/task_7_2_2_terminal.png"><img alt="../_images/task_7_2_2_terminal.png" class="align-center" src="../_images/task_7_2_2_terminal.png" style="width: 700px;" />
+</a>
+</section>
+<section id="bonus">
+<h3>3. Bonus<a class="headerlink" href="#bonus" title="Link to this heading"></a></h3>
+<p>To make the differences more visible, we simulated Tohoku with a cell size of <span class="math notranslate nohighlight">\(1000\,m\)</span> and visualised the whole
+thing with an <span class="math notranslate nohighlight">\(l\_k \text{ of } 1, 5 \text{ and } 25\)</span>.</p>
+<p>Required cells in x-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=2700\)</span> <span class="raw-html"><br></span>
+Required cells in y-direction: <span class="math notranslate nohighlight">\(\frac{2700000}{1000}=1500\)</span></p>
+<p><strong>l_k = 1</strong></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_1000_1.mp4" type="video/mp4">
+    </video>
+</center><p><strong>l_k = 5</strong></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_1000_5.mp4" type="video/mp4">
+    </video>
+</center><p><strong>l_k = 25</strong></p>
+<center>
+    <video width="700" controls>
+        <source src="../_static/videos/tohoku_1000_25.mp4" type="video/mp4">
+    </video>
+</center></section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tsunami_simulation.html" class="btn btn-neutral float-left" title="6. Tsunami Simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="optimization.html" class="btn btn-neutral float-right" title="8. Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

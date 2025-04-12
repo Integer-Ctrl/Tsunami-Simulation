@@ -1,0 +1,938 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. Finite Volume Discretization &mdash; Tsunami Simulation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Bathymetry &amp; Boundary Conditions" href="bathymetry_boundary_conditions.html" />
+    <link rel="prev" title="1. Riemann Solver" href="riemann_solver.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Tsunami Simulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_project.html">Building the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/building_docs.html">Building the Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">SUBMISSIONS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="riemann_solver.html">1. Riemann Solver</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Finite Volume Discretization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#f-wave-integration">F-Wave Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#middle-states">Middle States</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shock-and-rarefaction-waves">2.1. Shock and Rarefaction Waves</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-of-shock-shock-setup">Implementation of shock-shock setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-of-rare-rare-setup">Implementation of rare-rare setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#play-around">Play around</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-we-observe">What we observe</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dam-break">2.2. Dam-Break</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#playing-around">Playing around</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#observation">Observation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-evacuation-time">Compute evacuation time</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bathymetry_boundary_conditions.html">3. Bathymetry &amp; Boundary Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="two_dimensional_solver.html">4. Two-Dimensional Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_data_input_output.html">5. Large Data Input and Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsunami_simulation.html">6. Tsunami Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint_coarse_output.html">7. Checkpointing and Coarse Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">8. Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">9. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="individual_phase.html">10. Individual Phase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amrex.html">11. Adaptive Mesh Refinement</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tsunami_lab.html">tsunami_lab</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tsunami Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">2. Finite Volume Discretization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/submissions/finite_volume_discretization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="finite-volume-discretization">
+<span id="submissions-finite-volume-discretization"></span><h1>2. Finite Volume Discretization<a class="headerlink" href="#finite-volume-discretization" title="Link to this heading"></a></h1>
+<section id="f-wave-integration">
+<h2>F-Wave Integration<a class="headerlink" href="#f-wave-integration" title="Link to this heading"></a></h2>
+<p>Switching between the solvers is done by an enum, which is always included when a class is derived from <code class="docutils literal notranslate"><span class="pre">tsunami_lab::patches::WavePropagation</span></code>.
+To achieve this, the enumeration is included in the header file of <code class="docutils literal notranslate"><span class="pre">WavePropagation</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: WavePropagation.h</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">tsunami_lab</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">patches</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="nc">WavePropagation</span><span class="p">;</span>
+
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">        * solver options for wave propagation.</span>
+<span class="cm">        */</span>
+<span class="hll"><span class="w">        </span><span class="k">enum</span><span class="w"> </span><span class="nc">Solver</span>
+</span><span class="hll"><span class="w">        </span><span class="p">{</span>
+</span><span class="hll"><span class="w">            </span><span class="n">FWave</span><span class="p">,</span>
+</span><span class="hll"><span class="w">            </span><span class="n">Roe</span>
+</span><span class="hll"><span class="w">        </span><span class="p">};</span>
+</span><span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation</span><span class="w"> </span><span class="p">{</span>
+
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * Set the solver for the netUpdate</span>
+<span class="cm">    *</span>
+<span class="cm">    * @param solver used solver</span>
+<span class="cm">    */</span>
+<span class="hll"><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setSolver</span><span class="p">(</span><span class="n">Solver</span><span class="w"> </span><span class="n">solver</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The implementation for setting the solver is done via a simple set function and the solver is set to the FWave solver by default. <span class="raw-html"><br></span>
+Switching between the solvers is done via a function pointer of netUpdates to avoid calling an if statement in the for loop and to enable a more efficient calculation.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: WavePropagation1d.h</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation1d</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">WavePropagation</span><span class="w"> </span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="c1">//! the solver used for the netUpdates</span>
+<span class="hll"><span class="w">    </span><span class="n">Solver</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Solver</span><span class="o">::</span><span class="n">FWave</span><span class="p">;</span>
+</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * Set the solver for the netUpdate</span>
+<span class="cm">    * Default: FWave</span>
+<span class="cm">    *</span>
+<span class="cm">    * @param solver used solver</span>
+<span class="cm">    */</span>
+<span class="hll"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">setSolver</span><span class="p">(</span><span class="n">Solver</span><span class="w"> </span><span class="n">solver</span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">WavePropagation1d</span><span class="o">::</span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solver</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span><span class="p">};</span>
+
+<span class="c1">/// File: WavePropagation1d.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tsunami_lab::patches::WavePropagation1d::timeStep</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_scaling</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="c1">// uses a function pointer to choose between the solvers</span>
+<span class="hll"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">netUpdates</span><span class="p">)(</span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">FWave</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">solver</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Solver</span><span class="o">::</span><span class="n">Roe</span><span class="p">)</span>
+</span><span class="hll"><span class="w">    </span><span class="p">{</span>
+</span><span class="hll"><span class="w">        </span><span class="n">netUpdates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solvers</span><span class="o">::</span><span class="n">Roe</span><span class="o">::</span><span class="n">netUpdates</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="p">}</span>
+</span><span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="middle-states">
+<h2>Middle States<a class="headerlink" href="#middle-states" title="Link to this heading"></a></h2>
+<p>Setting up constants to control the middle states tests.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: test_middle_states.cpp</span>
+<span class="k">const</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">numberOfCells</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">numberOfTests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000000</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">testAccuracy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.99</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">accuracyMargin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0001</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">Solver</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">Solver</span><span class="o">::</span><span class="n">FWave</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Reading the middleStates.csv by implementing a new function to <code class="docutils literal notranslate"><span class="pre">tsunami_lab::io::Csv</span></code>.
+The function is using a file stream to middleStates.csv and parses a new line when called.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: Csv.cpp</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">tsunami_lab::io::Csv::next_middle_states</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ifstream</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_hLeft</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_hRight</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_huLeft</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_huRight</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">o_hStar</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">line</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// read next complete line</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// skip commented lines</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;#&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">        </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// parse lines divided by &#39;,&#39; to single values</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">istringstream</span><span class="w"> </span><span class="n">lineStream</span><span class="p">(</span><span class="n">line</span><span class="p">);</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">hLeft</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">lineStream</span><span class="p">,</span><span class="w"> </span><span class="n">hLeft</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">o_hLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atof</span><span class="p">(</span><span class="n">hLeft</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">hRight</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">lineStream</span><span class="p">,</span><span class="w"> </span><span class="n">hRight</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">o_hRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atof</span><span class="p">(</span><span class="n">hRight</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">huLeft</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">lineStream</span><span class="p">,</span><span class="w"> </span><span class="n">huLeft</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">o_huLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atof</span><span class="p">(</span><span class="n">huLeft</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">huRight</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">lineStream</span><span class="p">,</span><span class="w"> </span><span class="n">huRight</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">o_huRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atof</span><span class="p">(</span><span class="n">huRight</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">hStar</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">lineStream</span><span class="p">,</span><span class="w"> </span><span class="n">hStar</span><span class="p">);</span>
+<span class="w">        </span><span class="n">o_hStar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atof</span><span class="p">(</span><span class="n">hStar</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// no lines left to read</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Creating a new test case to run with a Catch2 session. <span class="raw-html"><br></span>
+Using the new CSV function to parse the file lines and check if the file can be read in a while loop.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: test_middle_states.cpp</span>
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test against the middle_states.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[MiddleStates]&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Read the middle_states.csv</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ifstream</span><span class="w"> </span><span class="n">middle_states</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;resources/middle_states.csv&quot;</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">successfullTests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// parese each line of the middle_states.csv and test against the simulation</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">hLeft</span><span class="p">,</span><span class="w"> </span><span class="n">hRight</span><span class="p">,</span><span class="w"> </span><span class="n">huLeft</span><span class="p">,</span><span class="w"> </span><span class="n">huRight</span><span class="p">,</span><span class="w"> </span><span class="n">hStar</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numberOfTests</span>
+<span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">Csv</span><span class="o">::</span><span class="n">next_middle_states</span><span class="p">(</span><span class="w"> </span><span class="n">middle_states</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">hLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">hRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">huLeft</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">huRight</span><span class="p">,</span>
+<span class="w">                                                     </span><span class="n">hStar</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Implementing a new setup for the middle states to return the matching height and momentum for the corresponding x-coordinate.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: MiddleStates1d.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../include/setups/MiddleStates1d.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../include/constants.h&quot;</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_heightRight</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_momentumRight</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_location</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_heightLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_heightRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_heightRight</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_momentumLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_momentumRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_momentumRight</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_location</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="o">::</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">m_location</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_heightLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_heightRight</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="o">::</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">m_location</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_momentumRight</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="o">::</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="n">t_real</span><span class="p">,</span><span class="w"> </span><span class="n">t_real</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Adding the new setup to the Catch2 unit tests.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">/// File: MiddleStates1d.test.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;catch2/catch.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../include/setups/MiddleStates1d.h&quot;</span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Test the one-dimensional MiddleStates setup.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[MiddleStates1d]&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="w"> </span><span class="nf">l_middleStates</span><span class="p">(</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">                                                        </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">                                                        </span><span class="mi">35</span><span class="p">,</span>
+<span class="w">                                                        </span><span class="mi">123</span><span class="p">,</span>
+<span class="w">                                                        </span><span class="mi">3</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// left side</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">35</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">35</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// right side</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">123</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">123</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">l_middleStates</span><span class="p">.</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Setting up the testing with the new setup <code class="docutils literal notranslate"><span class="pre">MiddleStates1d</span></code> and calculating the hStar by calculating over multiple time steps.
+Printing an Error message if the deviation of the calculated hStar and the read hStar is too high.
+After going through all test the number of successful tests, accuracy and cell settings are printed.
+At the end Catch2 test throws an error if the accuracy is too low.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c1">/// File: test_middle_states.cpp</span>
+<span class="w">    </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_dxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">numberOfCells</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">startHeightDifference</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="n">hLeft</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">hRight</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// construct setup</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">Setup</span><span class="o">*</span><span class="w"> </span><span class="n">l_setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">MiddleStates1d</span><span class="p">(</span><span class="w"> </span><span class="n">hLeft</span><span class="p">,</span><span class="w"> </span><span class="n">hRight</span><span class="p">,</span><span class="w"> </span><span class="n">huLeft</span><span class="p">,</span><span class="w"> </span><span class="n">huRight</span><span class="p">,</span><span class="w"> </span><span class="n">l_location</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// construct solver</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation</span><span class="o">*</span><span class="w"> </span><span class="n">l_waveProp</span><span class="p">;</span>
+<span class="w">        </span><span class="n">l_waveProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">patches</span><span class="o">::</span><span class="n">WavePropagation1d</span><span class="p">(</span><span class="w"> </span><span class="n">numberOfCells</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// set the solver to use</span>
+<span class="w">        </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">setSolver</span><span class="p">(</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// maximum observed height in the setup</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_hMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="o">&gt;::</span><span class="n">lowest</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// set up solver</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numberOfCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_cy</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_cy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_dxy</span><span class="p">;</span>
+
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numberOfCells</span><span class="p">;</span><span class="w"> </span><span class="n">l_cx</span><span class="o">++</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_cx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_dxy</span><span class="p">;</span>
+
+<span class="w">                </span><span class="c1">// get initial values of the setup</span>
+<span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_setup</span><span class="o">-&gt;</span><span class="n">getHeight</span><span class="p">(</span><span class="w"> </span><span class="n">l_x</span><span class="p">,</span>
+<span class="w">                                                              </span><span class="n">l_y</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">l_hMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="w"> </span><span class="n">l_h</span><span class="p">,</span><span class="w"> </span><span class="n">l_hMax</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_hu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_setup</span><span class="o">-&gt;</span><span class="n">getMomentumX</span><span class="p">(</span><span class="w"> </span><span class="n">l_x</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">l_y</span><span class="w"> </span><span class="p">);</span>
+<span class="w">                </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_hv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_setup</span><span class="o">-&gt;</span><span class="n">getMomentumY</span><span class="p">(</span><span class="w"> </span><span class="n">l_x</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">l_y</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="c1">// set initial values in wave propagation solver</span>
+<span class="w">                </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">setHeight</span><span class="p">(</span><span class="w"> </span><span class="n">l_cx</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">l_cy</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">l_h</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">setMomentumX</span><span class="p">(</span><span class="w"> </span><span class="n">l_cx</span><span class="p">,</span>
+<span class="w">                                          </span><span class="n">l_cy</span><span class="p">,</span>
+<span class="w">                                          </span><span class="n">l_hu</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">                </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">setMomentumY</span><span class="p">(</span><span class="w"> </span><span class="n">l_cx</span><span class="p">,</span>
+<span class="w">                                          </span><span class="n">l_cy</span><span class="p">,</span>
+<span class="w">                                          </span><span class="n">l_hv</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// derive maximum wave speed in setup; the momentum is ignored</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_speedMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="w"> </span><span class="mf">9.81</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_hMax</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// derive constant time step; changes at simulation time are ignored</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_dxy</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">l_speedMax</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// derive scaling for a time step</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_scaling</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_dt</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">l_dxy</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// set up time and print control</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w">  </span><span class="n">l_timeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.25</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">l_simTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// iterate over time</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">l_simTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l_endTime</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">setGhostOutflow</span><span class="p">();</span>
+<span class="w">            </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">timeStep</span><span class="p">(</span><span class="w"> </span><span class="n">l_scaling</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">l_timeStep</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="n">l_simTime</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">l_dt</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// test hStar against read value from middle_states.csv</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_iy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">i_stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_idx</span><span class="w"> </span><span class="n">l_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_iy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i_stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">l_location</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l_dxy</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="o">*</span><span class="w"> </span><span class="n">heights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_waveProp</span><span class="o">-&gt;</span><span class="n">getHeight</span><span class="p">();</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="w"> </span><span class="n">hStar</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">heights</span><span class="p">[</span><span class="n">l_id</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">relativDeviation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">startHeightDifference</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">isSameHeight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">relativDeviation</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">accuracyMargin</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="n">successfulTests</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">isSameHeight</span><span class="p">;</span>
+<span class="w">        </span><span class="n">nanProblems</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">isnan</span><span class="p">(</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">isSameHeight</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;FAILED: Deviation too high from Test &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; (relativ deviation:&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">relativDeviation</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// free memory</span>
+<span class="w">        </span><span class="k">delete</span><span class="w"> </span><span class="n">l_setup</span><span class="p">;</span>
+<span class="w">        </span><span class="k">delete</span><span class="w"> </span><span class="n">l_waveProp</span><span class="p">;</span>
+<span class="w">        </span><span class="o">++</span><span class="n">evaluatedTests</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// close the file and print the results</span>
+<span class="w">    </span><span class="n">middle_states</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">successfulTests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; Tests were successful of &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; with &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">nanProblems</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; Nan evaluations&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span>
+<span class="w">        </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Accuracy of &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">successfulTests</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; with Margin of &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">accuracyMargin</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; and &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">numberOfCells</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; Cells&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">REQUIRE</span><span class="p">(</span><span class="w"> </span><span class="n">successfulTests</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span><span class="n">evaluatedTests</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">testAccuracy</span><span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<p>Output of test_middle_states with 100 cells and a margin of 2%.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">FAILED: Deviation too high from Test 999969 (relativ deviation:0.284146)</span>
+<span class="go">FAILED: Deviation too high from Test 999990 (relativ deviation:0.199954)</span>
+
+<span class="go">992814 Tests were successful of 1000000 with 17 Nan evaluations</span>
+<span class="go">Accuracy of 0.992814 with Margin of 0.02 and 100 Cells</span>
+<span class="go">===============================================================================</span>
+<span class="go">All tests passed (1 assertion in 1 test case)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="continuous-integration">
+<h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Link to this heading"></a></h2>
+<p>The continuous integration is done by a <a class="reference external" href="https://docs.github.com/en/actions">GitHub Action</a> which was provided and modified to fit the current requirements.
+E.g. switching to cmake to build the project and the implemented targets.
+The action runs when a commit is done to the main branch or a pull request is opened targeting the main branch and the action runs every night to ensure continuity.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Tsunami Lab</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="nt">schedule</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0 0 * * *</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="nt">CI</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dependencies</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">sudo apt-get update</span>
+<span class="w">        </span><span class="no">sudo apt-get install cmake</span>
+<span class="w">        </span><span class="no">sudo apt-get install valgrind</span>
+<span class="w">        </span><span class="no">sudo apt-get install cppcheck</span>
+<span class="w">        </span><span class="no">git submodule init</span>
+<span class="w">        </span><span class="no">git submodule update</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configure the project</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">uses</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">threeal/cmake-action@v1.3.0</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Static Code Analysis</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">cppcheck src/ --template=gcc --force --error-exitcode=1</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sanitize</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">cmake --build build --config Debug --target sanitize</span>
+<span class="w">        </span><span class="no">./build/sanitize 25</span>
+<span class="w">        </span><span class="no">cmake --build build --config Debug --target sanitize_test</span>
+<span class="w">        </span><span class="no">./build/sanitize_test 25</span>
+<span class="w">        </span><span class="no">cmake --build build --config Release --target sanitize</span>
+<span class="w">        </span><span class="no">./build/sanitize 500</span>
+<span class="w">        </span><span class="no">cmake --build build --config Release --target sanitize_test</span>
+<span class="w">        </span><span class="no">./build/sanitize_test 500</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valgrind</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">cmake --build build --config Debug --target test</span>
+<span class="w">        </span><span class="no">valgrind build/test</span>
+<span class="w">        </span><span class="no">cmake --build build --config Debug --target build</span>
+<span class="w">        </span><span class="no">valgrind build/build 25</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">cmake --build build --config Release --target test</span>
+<span class="w">        </span><span class="no">./build/test</span>
+<span class="w">        </span><span class="no">cmake --build build --config Release --target build</span>
+<span class="w">        </span><span class="no">./build/build 500</span>
+</pre></div>
+</div>
+</section>
+<section id="shock-and-rarefaction-waves">
+<h2>2.1. Shock and Rarefaction Waves<a class="headerlink" href="#shock-and-rarefaction-waves" title="Link to this heading"></a></h2>
+<section id="implementation-of-shock-shock-setup">
+<h3>Implementation of shock-shock setup<a class="headerlink" href="#implementation-of-shock-shock-setup" title="Link to this heading"></a></h3>
+<p>“<strong>Shock-Shock Problem</strong>: Let’s use our solver to solve shock-shock Riemann problems. Imagine two streams
+of water which move in opposite directions and smash into each other at some position <span class="math notranslate nohighlight">\(x_\text{dis}\)</span>.
+The scenario is given by the following setup”<a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{cases}
+    Q_i = q_{l} \quad &amp;\text{if } x_i \le x_\text{dis} \\
+    Q_i = q_{r} \quad &amp;\text{if }   x_i &gt; x_\text{dis}
+\end{cases} \qquad q_l \in \mathbb{R}^+ \times \mathbb{R}^+, \; q_r \in \mathbb{R}^+ \times \mathbb{R}^-,\end{split}\end{split}\]</div>
+<p>with initial conditions:</p>
+<p><span class="raw-html"><center>(2.1.1)</center></span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}q_l=
+    \begin{bmatrix}
+      h_l \\ (hu)_l
+    \end{bmatrix}, \quad
+  q_r =
+    \begin{bmatrix}
+      h_r \\ (hu)_r
+    \end{bmatrix} =
+    \begin{bmatrix}
+      h_l \\ -(hu)_l
+    \end{bmatrix}.
+\end{split}\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">ShockShock1d</span><span class="o">::</span><span class="n">ShockShock1d</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">,</span>
+<span class="w">                                                </span><span class="n">t_real</span><span class="w"> </span><span class="n">i_locationShock</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_heightLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_momentumLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_locationShock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_locationShock</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">ShockShock1d</span><span class="o">::</span><span class="n">getHeight</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="p">,</span>
+<span class="w">                                                    </span><span class="n">t_real</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">m_heightLeft</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">ShockShock1d</span><span class="o">::</span><span class="n">getMomentumX</span><span class="p">(</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span>
+<span class="w">                                                       </span><span class="n">t_real</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">m_locationShock</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">m_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">ShockShock1d</span><span class="o">::</span><span class="n">getMomentumY</span><span class="p">(</span><span class="n">t_real</span><span class="p">,</span>
+<span class="w">                                                       </span><span class="n">t_real</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="implementation-of-rare-rare-setup">
+<h3>Implementation of rare-rare setup<a class="headerlink" href="#implementation-of-rare-rare-setup" title="Link to this heading"></a></h3>
+<p>“<strong>Rare-Rare Problem</strong>: We can setup rare-rare Riemann problems by two streams of water, which move away
+from each other at some position <span class="math notranslate nohighlight">\(x_\text{dis}\)</span>. The scenario is defined as”<a class="footnote-reference brackets" href="#id3" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}\begin{cases}
+    Q_i = q_{r} \quad &amp;\text{if } x_i \le x_\text{dis} \\
+    Q_i = q_{l} \quad &amp;\text{if }   x_i &gt; x_\text{dis}
+    \end{cases} \qquad q_l \in \mathbb{R}^+ \times \mathbb{R}^+, \; q_r \in \mathbb{R}^+ \times \mathbb{R}^-,\end{split}\end{split}\]</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">RareRare1d</span><span class="o">::</span><span class="n">RareRare1d</span><span class="p">(</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">,</span>
+<span class="w">                                            </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">,</span>
+<span class="w">                                            </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_locationRare</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">m_heightLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_heightLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_momentumLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">m_locationRare</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_locationRare</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">RareRare1d</span><span class="o">::</span><span class="n">getHeight</span><span class="p">(</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">m_heightLeft</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">RareRare1d</span><span class="o">::</span><span class="n">getMomentumX</span><span class="p">(</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">i_x</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i_x</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">m_locationRare</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">m_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m_momentumLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="w"> </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">setups</span><span class="o">::</span><span class="n">RareRare1d</span><span class="o">::</span><span class="n">getMomentumY</span><span class="p">(</span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="p">,</span>
+<span class="w">                                                                  </span><span class="n">tsunami_lab</span><span class="o">::</span><span class="n">t_real</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>From <a class="reference external" href="https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_1.html#f-wave-solver">https://scalable.uni-jena.de/opt/tsunami/chapters/assignment_1.html#f-wave-solver</a> (29.10.2023)</p>
+</aside>
+</aside>
+</section>
+<section id="play-around">
+<h3>Play around<a class="headerlink" href="#play-around" title="Link to this heading"></a></h3>
+<p>l_hl…height of left side <span class="raw-html"><br></span>
+l_hr…height of right side <span class="raw-html"><br></span>
+l_ml…momentum of left side <span class="raw-html"><br></span>
+l_location…location <span class="raw-html"><br></span>
+<span class="math notranslate nohighlight">\(\lambda_1\)</span>…wave speed one <span class="raw-html"><br></span>
+<span class="math notranslate nohighlight">\(\lambda_2\)</span>…wave speed two</p>
+<p>All results with 3 cells!</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>l_hl</p></th>
+<th class="head"><p>l_hul</p></th>
+<th class="head"><p>l_ul</p></th>
+<th class="head"><p>l_location</p></th>
+<th class="head"><p>Setup</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\lambda_1\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\lambda_2\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>/</p></td>
+<td><p>/</p></td>
+<td><p>5</p></td>
+<td><p>Dam-Break</p></td>
+<td><p>-9.90285</p></td>
+<td><p>9.90285</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>8</p></td>
+<td><p>0.8</p></td>
+<td><p>5</p></td>
+<td><p>Rare-Rare</p></td>
+<td><p>-10.7029</p></td>
+<td><p>9.10285</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>8</p></td>
+<td><p>0.8</p></td>
+<td><p>5</p></td>
+<td><p>Shock-Shock</p></td>
+<td><p>-9.10285</p></td>
+<td><p>10.7029</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>/</p></td>
+<td><p>/</p></td>
+<td><p>5</p></td>
+<td><p>Dam-Break</p></td>
+<td><p>-9.90285</p></td>
+<td><p>9.90285</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>5</p></td>
+<td><p>Rare-Rare</p></td>
+<td><p>-9.90285</p></td>
+<td><p>9.90285</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>5</p></td>
+<td><p>Shock-Shock</p></td>
+<td><p>-9.90285</p></td>
+<td><p>9.90285</p></td>
+</tr>
+<tr class="row-even"><td><p>15</p></td>
+<td><p>/</p></td>
+<td><p>/</p></td>
+<td><p>5</p></td>
+<td><p>Dam-Break</p></td>
+<td><p>-12.1285</p></td>
+<td><p>12.1285</p></td>
+</tr>
+<tr class="row-odd"><td><p>15</p></td>
+<td><p>5</p></td>
+<td><p>1/3</p></td>
+<td><p>5</p></td>
+<td><p>Rare-Rare</p></td>
+<td><p>-12.4618</p></td>
+<td><p>11.7951</p></td>
+</tr>
+<tr class="row-even"><td><p>15</p></td>
+<td><p>5</p></td>
+<td><p>1/3</p></td>
+<td><p>5</p></td>
+<td><p>Shock-Shock</p></td>
+<td><p>-11.7951</p></td>
+<td><p>12.4618</p></td>
+</tr>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>/</p></td>
+<td><p>/</p></td>
+<td><p>5</p></td>
+<td><p>Dam-Break</p></td>
+<td><p>-31.3156</p></td>
+<td><p>31.3156</p></td>
+</tr>
+<tr class="row-even"><td><p>100</p></td>
+<td><p>5</p></td>
+<td><p>0.05</p></td>
+<td><p>5</p></td>
+<td><p>Rare-Rare</p></td>
+<td><p>-31.3656</p></td>
+<td><p>31.2656</p></td>
+</tr>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>5</p></td>
+<td><p>0.05</p></td>
+<td><p>5</p></td>
+<td><p>Shock-Shock</p></td>
+<td><p>-31.2656</p></td>
+<td><p>31.3656</p></td>
+</tr>
+<tr class="row-even"><td><p>100</p></td>
+<td><p>/</p></td>
+<td><p>/</p></td>
+<td><p>5</p></td>
+<td><p>Dam-Break</p></td>
+<td><p>-31.3156</p></td>
+<td><p>31.3156</p></td>
+</tr>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>2000</p></td>
+<td><p>20</p></td>
+<td><p>5</p></td>
+<td><p>Rare-Rare</p></td>
+<td><p>-51.3156</p></td>
+<td><p>11.3156</p></td>
+</tr>
+<tr class="row-even"><td><p>100</p></td>
+<td><p>2000</p></td>
+<td><p>20</p></td>
+<td><p>5</p></td>
+<td><p>Shock-Shock</p></td>
+<td><p>-11.3156</p></td>
+<td><p>51.3156</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-we-observe">
+<h3>What we observe<a class="headerlink" href="#what-we-observe" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Dam-Break</dt><dd><p><span class="math notranslate nohighlight">\(\lambda_1 = -\lambda_2\)</span> <span class="raw-html"><br></span>
+The higher the difference between l_hl and l_hr the higher the absolute wave speeds (eigenvalues). <span class="raw-html"><br></span>
+Wave speeds are independent of the velocity which is always zero.</p>
+</dd>
+<dt>Rare-Rare</dt><dd><p>Waves speeds of Rare-Rare and Shock-Shock are swapped. <span class="raw-html"><br></span>
+<span class="math notranslate nohighlight">\(\lambda_{1/2} = u \mp \sqrt{gh}\)</span> <span class="raw-html"><br></span>
+thus the wave speeds scale with the velocity. The higher the velocity the higher the wave speeds.</p>
+</dd>
+<dt>Shock-Shock</dt><dd><p>Waves speeds of Rare-Rare and Shock-Shock are swapped. <span class="raw-html"><br></span>
+<span class="math notranslate nohighlight">\(\lambda_{1/2} = u \mp \sqrt{gh}\)</span> <span class="raw-html"><br></span>
+thus the wave speeds scale with the velocity. The higher the velocity the higher the wave speeds.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="dam-break">
+<h2>2.2. Dam-Break<a class="headerlink" href="#dam-break" title="Link to this heading"></a></h2>
+<section id="playing-around">
+<h3>Playing around<a class="headerlink" href="#playing-around" title="Link to this heading"></a></h3>
+<p>l_hl…height of left side <span class="raw-html"><br></span>
+l_hr…height of right side <span class="raw-html"><br></span>
+l_location…location <span class="raw-html"><br></span>
+l_ur…particles velocity of the right side</p>
+<p>All results with 100 cells!</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>l_hl</p></th>
+<th class="head"><p>l_hr</p></th>
+<th class="head"><p>l_location</p></th>
+<th class="head"><p>l_ur</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>5</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>20</p></td>
+<td><p>10</p></td>
+<td><p>5</p></td>
+<td><p>4.1327</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>20</p></td>
+<td><p>5</p></td>
+<td><p>-4.1356</p></td>
+</tr>
+<tr class="row-odd"><td><p>200</p></td>
+<td><p>10</p></td>
+<td><p>5</p></td>
+<td><p>34.2068</p></td>
+</tr>
+<tr class="row-even"><td><p>200</p></td>
+<td><p>150</p></td>
+<td><p>5</p></td>
+<td><p>5.9400</p></td>
+</tr>
+<tr class="row-odd"><td><p>200</p></td>
+<td><p>190</p></td>
+<td><p>5</p></td>
+<td><p>1.1214</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="observation">
+<h3>Observation<a class="headerlink" href="#observation" title="Link to this heading"></a></h3>
+<p>The larger the gap between the left and right water height the bigger is the velocity.
+With higher water columns but same difference between left and right water height the
+velocity decreases.</p>
+</section>
+<section id="compute-evacuation-time">
+<h3>Compute evacuation time<a class="headerlink" href="#compute-evacuation-time" title="Link to this heading"></a></h3>
+<p><strong>Calculated with Simulation</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}q_l = [14, 0]^T\\
+q_r = [3.5, 0.7]^T\end{split}\]</div>
+<p>Distance: <span class="math notranslate nohighlight">\(25,000\,m\)</span> <span class="raw-html"><br></span>
+Wave speed: <span class="math notranslate nohighlight">\(11.7120\,m/s\)</span></p>
+<p>Time: <span class="math notranslate nohighlight">\(\frac{25,000\,m}{11.7120\,m/s} = 35,5760\,s \approx \text{35:34 min}\)</span></p>
+<p><strong>Calculated by hand</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}q_l = [14, 0]^T, u_l = \frac{0}{14} =0\\
+q_r = [3.5, 0.7]^T, u_l = \frac{0.7}{3.5} = 0.2\\
+h^{\text{Roe}} = \frac{1}{2}\cdot(14+3.5) = 8.75\\
+u^{\text{Roe}} = \frac{0\cdot\sqrt{14}+0.2\cdot\sqrt{3.5}}{\sqrt{1}+\sqrt{3.5}} = \frac{1}{15}\\
+\sqrt{gh^{\text{Roe}}} = \sqrt{9.80665\cdot8.75} = 9.263270886\\
+\lambda_1 = \frac{1}{15}-9.263270886 = -9.196604219\\
+\lambda_2 = \frac{1}{15}+9.263270886 = 9.329937553\end{split}\]</div>
+<p>Distance: <span class="math notranslate nohighlight">\(25,000\,m\)</span> <span class="raw-html"><br></span>
+Wave speed: <span class="math notranslate nohighlight">\(9.329937553\,m/s\)</span></p>
+<p>Time: <span class="math notranslate nohighlight">\(\frac{25,000\,m}{9.329937553\,m/s} = 2679.546\,s \approx \text{44:40 min}\)</span></p>
+</section>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h2>
+<p>All team members contributed equally to the tasks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="riemann_solver.html" class="btn btn-neutral float-left" title="1. Riemann Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bathymetry_boundary_conditions.html" class="btn btn-neutral float-right" title="3. Bathymetry &amp; Boundary Conditions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fabian Hofer, Vincent Gerlach.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
